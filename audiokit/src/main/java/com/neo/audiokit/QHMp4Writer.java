@@ -11,7 +11,7 @@ import com.neo.audiokit.codec.HWVideoEncode;
 import com.neo.audiokit.codec.ICodec;
 import com.neo.audiokit.codec.IMediaDataCallBack;
 import com.neo.audiokit.codec.MediaFormat;
-import com.neo.audiokit.codec.NativeMediaLib;
+import com.qihoo.recorder.codec.NativeMediaLib;
 
 import java.nio.ByteBuffer;
 

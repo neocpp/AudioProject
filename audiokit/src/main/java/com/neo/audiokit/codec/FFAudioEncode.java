@@ -2,6 +2,8 @@ package com.neo.audiokit.codec;
 
 import android.view.Surface;
 
+import com.qihoo.recorder.codec.NativeMediaLib;
+
 import java.nio.ByteBuffer;
 
 public class FFAudioEncode implements ICodec {

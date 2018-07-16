@@ -1,5 +1,8 @@
 package com.neo.audiokit;
 
+import android.media.audiofx.EnvironmentalReverb;
+import android.media.audiofx.Equalizer;
+import android.media.audiofx.PresetReverb;
 import android.os.SystemClock;
 
 import com.neo.audiokit.codec.CodecBufferInfo;
@@ -41,6 +44,12 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
     private float mPlayPitch = 1f;
     private boolean mIsStopWait = true;
 
+    Equalizer mEqualizer;
+    PresetReverb mPresetReverb;
+    private List<String> reverbVals = new ArrayList<>();
+    private List<Short> reverbNames = new ArrayList<>();
+
+
     private List<AudioProcessor> audioProcessorList;
 
     public interface AudioPlayerCallBack {
@@ -51,7 +60,48 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
 
     public AudioPlayer(AudioPlayerCallBack callBack) {
         mCallBack = callBack;
+
+        mPresetReverb = new PresetReverb(0, 0);
+        mPresetReverb.setEnabled(true);
+
+        mEqualizer = new Equalizer(0, 0);
+        // 启用均衡控制效果
+        mEqualizer.setEnabled(true);
+
+        for (short i = 0; i < mEqualizer.getNumberOfPresets(); i++) {
+            reverbNames.add(i);
+            reverbVals.add(mEqualizer.getPresetName(i));
+        }
     }
+
+    public List<String> getReverbValues() {
+        return reverbVals;
+    }
+
+    public void setReverb(int idx) {
+        try {
+            mEqualizer.usePreset(reverbNames.get(idx));
+//            mPresetReverb.setPreset(reverbNames.get(idx));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setRoomLevel(float ratio) {
+        PresetReverb.Settings settings = mPresetReverb.getProperties();
+        String str = settings.toString();
+        settings = new PresetReverb.Settings(str);
+        short preset = (ratio < 1.4f) ? PresetReverb.PRESET_NONE :
+                (ratio < 2.8f) ? PresetReverb.PRESET_SMALLROOM :
+                        (ratio < 4.2f) ? PresetReverb.PRESET_MEDIUMROOM :
+                                (ratio < 5.6f) ? PresetReverb.PRESET_LARGEROOM :
+                                        (ratio < 7f) ? PresetReverb.PRESET_MEDIUMHALL :
+                                                (ratio < 8.4f) ? PresetReverb.PRESET_LARGEHALL :
+                                                        PresetReverb.PRESET_PLATE;
+        settings.preset = preset;
+        mPresetReverb.setProperties(settings);
+    }
+
 
     public int setDataSource(String path) {
         mPath = path;
@@ -116,6 +166,10 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
         return mIsPlayThreadStart && !mIsPause;
     }
 
+    public void stop() {
+        stop(false);
+    }
+
     synchronized public int stop(boolean isWait) {
         if (mPlayThread == null) {
             return 0;
@@ -149,7 +203,7 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
                 if (mAudioData.length < audioFrame.info.size) {
                     mAudioData = new byte[audioFrame.info.size];
                 }
-                audioFrame.buffer.get(mAudioData, audioFrame.info.offset, audioFrame.info.size);
+                audioFrame.buffer.get(mAudioData, 0, audioFrame.info.size);
                 mAudioTrack.write(mAudioData, 0, audioFrame.info.size);
                 totalSample = audioFrame.info.size / 2;
             }
@@ -300,6 +354,12 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
             Thread.sleep(time);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void setVolume(float gain) {
+        if (mAudioTrack != null) {
+            mAudioTrack.setVolume(gain);
         }
     }
 }

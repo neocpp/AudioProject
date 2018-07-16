@@ -4,6 +4,8 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
 
+import com.qihoo.recorder.codec.NativeMediaLib;
+
 import java.nio.ByteBuffer;
 
 /**
