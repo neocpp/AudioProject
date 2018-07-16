@@ -1,6 +1,7 @@
 package com.neo.audiokit;
 
 import android.media.MediaPlayer;
+import android.media.audiofx.EnvironmentalReverb;
 import android.media.audiofx.Equalizer;
 import android.media.audiofx.PresetReverb;
 
@@ -15,6 +16,7 @@ public class MediaAudioPlayer extends MediaPlayer {
 
     Equalizer mEqualizer;
     PresetReverb mPresetReverb;
+    EnvironmentalReverb mEnvReverb;
     private List<String> reverbVals = new ArrayList<>();
     private List<Short> reverbNames = new ArrayList<>();
 
@@ -27,6 +29,9 @@ public class MediaAudioPlayer extends MediaPlayer {
 
         mPresetReverb = new PresetReverb(0, getAudioSessionId());
         mPresetReverb.setEnabled(true);
+
+        mEnvReverb = new EnvironmentalReverb(0, getAudioSessionId());
+        mEnvReverb.setEnabled(true);
 
         for (short i = 0; i < mEqualizer.getNumberOfPresets(); i++) {
             reverbNames.add(i);
