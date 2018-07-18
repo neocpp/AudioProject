@@ -1,6 +1,17 @@
 package com.neo.audiokit;
 
+import android.util.Log;
+
+import com.neo.audiokit.tarsor.TarsorDispatcher;
+
+import be.tarsos.dsp.AudioEvent;
+import be.tarsos.dsp.io.TarsosDSPAudioFormat;
+import be.tarsos.dsp.pitch.PitchDetectionHandler;
+import be.tarsos.dsp.pitch.PitchDetectionResult;
+import be.tarsos.dsp.pitch.PitchProcessor;
+
 public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
+    private static final String TAG = "AudioRecorder";
     private AudioCapture audioCapture;
     private FileWriter fileWriter;
     private String mRootPath;
@@ -8,6 +19,7 @@ public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
     private ProgressCtrl progressCtrl = new ProgressCtrl();
     private IRecordCallback mCallback;
     private String outFileName;
+    private TarsorDispatcher tarsorDispatcher;
 
     public AudioRecorder(String rootPath, IRecordCallback callback) {
         fileWriter = new FileWriter();
@@ -18,7 +30,21 @@ public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
     public void startCapture() {
         audioCapture = new AudioCapture();
         audioCapture.setFormat(44100, 1, 16);
+        TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(44100, 16, 1, true, false);
         audioCapture.start();
+        tarsorDispatcher = new TarsorDispatcher(audioFormat, audioCapture.getSampleBufferSize(), 0);
+        tarsorDispatcher.addAudioProcessor(new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 44100,
+                audioCapture.getSampleBufferSize(), new PitchDetectionHandler() {
+
+            @Override
+            public void handlePitch(PitchDetectionResult pitchDetectionResult,
+                                    AudioEvent audioEvent) {
+                float pitchInHz = pitchDetectionResult.getPitch();
+                Log.e(TAG, "pitch:" + pitchInHz);
+
+            }
+        }));
+        tarsorDispatcher.setAudioTarget(fileWriter);
     }
 
     public void stopCapture() {
@@ -32,7 +58,7 @@ public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
         progressCtrl.init(this);
         outFileName = mRootPath + "/" + System.currentTimeMillis() + ".aac";
         fileWriter.startRecord(outFileName);
-        audioCapture.setAudioTarget(fileWriter);
+        audioCapture.setAudioTarget(tarsorDispatcher);
         isRecording = true;
 
         if (mCallback != null) {

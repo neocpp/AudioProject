@@ -1,6 +1,5 @@
 package com.neo.audioproject;
 
-import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,10 +13,6 @@ import android.widget.TextView;
 
 import com.neo.audiokit.AudioPlayer;
 import com.neo.audiokit.AudioRecorder;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         AudioPlayer.AudioPlayerCallBack, SeekBar.OnSeekBarChangeListener, AudioRecorder.IRecordCallback {
@@ -71,36 +66,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         audioRecorder = new AudioRecorder(getExternalFilesDir("record").getAbsolutePath(), this);
 
+        prepareFile();
+
+    }
+
+    private void prepareFile() {
         try {
             musicPath = getExternalFilesDir("ex").getAbsolutePath() + "/test.mp3";
-            copyFileFromAssets(this, "test.mp3", musicPath);
+            FileUtils.copyFileFromAssets(this, "test.mp3", musicPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
-    private void copyFileFromAssets(Context context, String assetsFilePath, String targetFileFullPath) throws Exception {
-        File file = new File(targetFileFullPath);
-        if (file.exists()) {
-            return;
-        }
-        if (!file.getParentFile().exists()) {
-            file.getParentFile().mkdir();
-        }
-        InputStream in;
-        // 从assets目录下复制
-        in = context.getAssets().open(assetsFilePath);
-        FileOutputStream out = new FileOutputStream(file);
-        int length = -1;
-        byte[] buf = new byte[1024];
-        while ((length = in.read(buf)) != -1) {
-            out.write(buf, 0, length);
-        }
-        out.flush();
-        in.close();
-        out.close();
-    }
 
     @Override
     public void onClick(View view) {

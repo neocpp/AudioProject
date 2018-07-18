@@ -91,4 +91,13 @@
         android:layout_height="wrap_content"
         android:max="200"
         android:progress="100" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="15dp"
+        android:background="@android:color/black" />
+
+
 </LinearLayout>
