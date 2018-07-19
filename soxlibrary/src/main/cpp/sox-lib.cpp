@@ -25,7 +25,20 @@ JNIEXPORT jint JNICALL Java_com_lib_sox_SoxJni_processBuffer
          jint sampleRate, jint channel, jint reverbrance,
          jint hFDamping, jint roomScale,
          jint stereoDepth, jint preDelay, jint wetGain) {
+    SoxProcessor *soxProcessor = new SoxProcessor();
+    soxProcessor->init();
 
+    char *data = new char[inSize];
+    env->GetByteArrayRegion(inData, 0, inSize, reinterpret_cast<jbyte *>(data));
+    char *outBuffer;
+    int outSize = soxProcessor->processBuffer(data, inSize, outBuffer, sampleRate, channel,
+                                              reverbrance,
+                                              hFDamping, roomScale, stereoDepth,
+                                              preDelay, wetGain);
+    env->SetByteArrayRegion(outData, 0, outSize, (jbyte *) outBuffer);
+    soxProcessor->uninit();
+
+    return outSize;
 }
 
 
