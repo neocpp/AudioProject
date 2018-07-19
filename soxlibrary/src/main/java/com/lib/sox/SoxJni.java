@@ -5,5 +5,10 @@ public class SoxJni {
         System.loadLibrary("sox-lib");
     }
 
-    public native String getString();
+    public static native void addReverb(String inFile, String outFile, int reverberance, int hFDamping, int roomScale, int stereoDepth,
+                                        int preDelay, int wetGain);
+
+    public static native int processBuffer(byte[] inData, int size, byte[] outData, int sampleRate, int channels,
+                                           int reverberance, int hFDamping, int roomScale, int stereoDepth,
+                                           int preDelay, int wetGain);
 }

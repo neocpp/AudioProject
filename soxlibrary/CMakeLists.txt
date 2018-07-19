@@ -18,6 +18,7 @@ add_library( # Sets the name of the library.
 
              # Provides a relative path to your source file(s).
              src/main/cpp/sox-lib.cpp
+             src/main/cpp/SoxProcessor.cpp
              )
 
 include_directories(src/main/cpp/ import/include/ src/main/cpp/readPixel)
