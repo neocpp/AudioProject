@@ -1,9 +1,9 @@
 package com.neo.audiokit;
 
-import android.media.audiofx.EnvironmentalReverb;
 import android.media.audiofx.Equalizer;
 import android.media.audiofx.PresetReverb;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.neo.audiokit.codec.CodecBufferInfo;
 import com.neo.audiokit.codec.IMediaDataCallBack;
@@ -12,6 +12,8 @@ import com.neo.audiokit.exo.SonicExoHandler;
 import com.neo.audiokit.framework.AudioChain;
 import com.neo.audiokit.framework.AudioFrame;
 import com.neo.audiokit.framework.IAudioTarget;
+import com.neo.audiokit.sox.ReverbBean;
+import com.neo.audiokit.sox.SoxHandler;
 import com.neo.audiokit.tarsor.TarsorDispatcher;
 
 import java.nio.ByteBuffer;
@@ -26,7 +28,7 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
     private String mPath;
     private PlayThread mPlayThread;
     private AudioTrackNonBlock mAudioTrack;
-    private QHMp4Reader mMp4Reader;
+    private AudioFileReader mAudioReader;
     private long mCurrentPos;
     private boolean mIsPause;
     private boolean mIsPlayThreadStart = false;
@@ -42,7 +44,9 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
     private TarsorDispatcher mTarsorProcesser;
     private float mPlaySpeed = 1.0f;
     private float mPlayPitch = 1f;
+    private ReverbBean mReverbBean;
     private boolean mIsStopWait = true;
+    private SoxHandler soxHandler;
 
     Equalizer mEqualizer;
     PresetReverb mPresetReverb;
@@ -127,6 +131,13 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
         }
     }
 
+    public void setReverb(ReverbBean bean) {
+        mReverbBean = bean;
+        if (soxHandler != null) {
+            soxHandler.setParam(bean);
+        }
+    }
+
     public int prepareAsync() {
         return 0;
     }
@@ -156,7 +167,7 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
         mIsPause = true;
         if (mAudioTrack != null) {
             mAudioTrack.pause();
-            mMp4Reader.seekTo(mAudioTrack.getPlayPos() * 1000);
+            mAudioReader.seekTo(mAudioTrack.getPlayPos() * 1000);
         }
 
         return 0;
@@ -177,8 +188,8 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
         mIsStopWait = isWait;
         mIsNeedNotifyCompletionFlag = false;
         mIsPause = false;
-        if (mMp4Reader != null) {
-            mMp4Reader.forceClose();
+        if (mAudioReader != null) {
+            mAudioReader.forceClose();
         }
         try {
             mPlayThread.join();
@@ -221,9 +232,10 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
                     sleep(1);
                 }
             }
-            long step = (long) (totalSample * 1000.0f / (mMp4Reader.getChannelNum() * mMp4Reader.getSampleRate()));
+            long step = (long) (totalSample * 1000.0f / (mAudioReader.getChannelNum() * mAudioReader.getSampleRate()));
             mCurrentPos = mAudioTrack.getPlayPos();
             mCurrentFileTime += step;
+            Log.e(TAG, "audiotrack mCurrentPos:" + mCurrentPos + "; fileTime: " + mCurrentFileTime);
             while (mIsPause) {
                 sleep(5);
             }
@@ -275,7 +287,7 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
             return 0;
         }
         mAudioTrack.seekTo(pos);
-        mMp4Reader.seekTo(pos * 1000);
+        mAudioReader.seekTo(pos * 1000);
         return 0;
     }
 
@@ -300,40 +312,42 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
     class PlayThread extends Thread {
         @Override
         public void run() {
-            if (mMp4Reader != null) {
+            if (mAudioReader != null) {
 //                RecorderLogUtils.e(TAG, TAG + ".PlayThread run error");
                 return;
             }
-            mMp4Reader = new QHMp4Reader();
-            mMp4Reader.setTrackConfig(IMediaDataCallBack.IMediaDataCallBackTrackTypeAudio, true, true);
-            mMp4Reader.setTrackConfig(IMediaDataCallBack.IMediaDataCallBackTrackTypeVideo, false, false);
-            mMp4Reader.openReader(mPath, Long.MIN_VALUE, Long.MAX_VALUE, AudioPlayer.this);
+            mAudioReader = new AudioFileReader();
+            mAudioReader.openReader(mPath, Long.MIN_VALUE, Long.MAX_VALUE, AudioPlayer.this);
             if (mCallBack != null) {
-                mCallBack.onDuration(mMp4Reader.getDuration());
+                mCallBack.onDuration(mAudioReader.getAudioDuration());
             }
             mSonicHandler = new SonicExoHandler(mPlaySpeed, 1f);
-            mSonicHandler.init(mMp4Reader.getSampleRate(), mMp4Reader.getChannelNum());
-            TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(mMp4Reader.getSampleRate(), 16,
-                    mMp4Reader.getChannelNum(), true, false);
-            mTarsorProcesser = new TarsorDispatcher(audioFormat, mMp4Reader.getAudioBufferSize(), 0);
+            mSonicHandler.init(mAudioReader.getSampleRate(), mAudioReader.getChannelNum());
+            TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(mAudioReader.getSampleRate(), 16,
+                    mAudioReader.getChannelNum(), true, false);
+            mTarsorProcesser = new TarsorDispatcher(audioFormat, mAudioReader.getAudioBufferSize(), 0);
             if (audioProcessorList != null) {
                 for (AudioProcessor ap : audioProcessorList) {
                     mTarsorProcesser.addAudioProcessor(ap);
                 }
             }
+            soxHandler = new SoxHandler();
+            soxHandler.init(mAudioReader.getSampleRate(), mAudioReader.getChannelNum());
+            soxHandler.setParam(mReverbBean);
             setAudioTarget(mSonicHandler);
             mSonicHandler.setAudioTarget(mTarsorProcesser);
-            mTarsorProcesser.setAudioTarget(audioConsumer);
-            mAudioTrack = new AudioTrackNonBlock(mMp4Reader.getSampleRate(), mMp4Reader.getChannelNum());
+            mTarsorProcesser.setAudioTarget(soxHandler);
+            soxHandler.setAudioTarget(audioConsumer);
+            mAudioTrack = new AudioTrackNonBlock(mAudioReader.getSampleRate(), mAudioReader.getChannelNum());
             mAudioTrack.setSpeed(mPlaySpeed);
             if (mFirstSeektPos > 0) {
                 mAudioTrack.seekTo(mFirstSeektPos);
-                mMp4Reader.seekTo(mFirstSeektPos * 1000);
+                mAudioReader.seekTo(mFirstSeektPos * 1000);
             }
             mAudioTrack.play();
-            mMp4Reader.start(null);
+            mAudioReader.start();
             mIsPlayThreadStart = true;
-            mMp4Reader.closeReader();
+            mAudioReader.closeReader();
             while (mAudioTrack.getQueueSize() > 0 && mIsStopWait) {
                 AudioPlayer.sleep(1);
                 mCurrentPos = mAudioTrack.getPlayPos();
@@ -341,7 +355,7 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
             mAudioTrack.stop();
             mAudioTrack.release();
             mSonicHandler.release();
-            mMp4Reader = null;
+            mAudioReader = null;
             mAudioTrack = null;
             if (mCallBack != null && mIsNeedNotifyCompletionFlag) {
                 mCallBack.onCompletion();

@@ -4,6 +4,17 @@
 
 #include "SoxProcessor.h"
 
+static void
+output_message(unsigned level, const char *filename, const char *fmt, va_list ap) {
+    char const *const str[] = {"FAIL", "WARN", "INFO", "DBUG"};
+    if (sox_globals.verbosity >= level) {
+        char base_name[128];
+        sox_basename(base_name, sizeof(base_name), filename);
+        LOGD("%s %s: ", str[level - 1], base_name);
+        LOGD(fmt, ap);
+        LOGD("\n");
+    }
+}
 
 SoxProcessor::SoxProcessor() {
 
@@ -13,6 +24,9 @@ SoxProcessor::~SoxProcessor() {
 }
 
 void SoxProcessor::init() {
+    sox_globals.output_message_handler = output_message;
+    sox_globals.verbosity = 1;
+
     assert(sox_init() == SOX_SUCCESS);
 }
 
@@ -97,17 +111,20 @@ int SoxProcessor::processBuffer(char *inBuffer, int inSize, char *outBuffer, int
                                 int roomScale,
                                 int stereoDepth,
                                 int preDelay, int wetGain) {
-    sox_signalinfo_t *signalinfo = new sox_signalinfo_t();
-    signalinfo->rate = sampleRate;
-    signalinfo->channels = channel;
-    signalinfo->precision = SOX_DEFAULT_PRECISION;
-    sox_encodinginfo_t *encodinginfo = new sox_encodinginfo_t();
-    encodinginfo->encoding = SOX_ENCODING_SIGN2;
-    encodinginfo->bits_per_sample = signalinfo->precision;
-    encodinginfo->reverse_bytes = sox_option_default;
-    encodinginfo->reverse_nibbles = sox_option_default;
-    encodinginfo->reverse_bits = sox_option_default;
-    assert(in = sox_open_mem_read(inBuffer, inSize, signalinfo, encodinginfo, NULL));
+    sox_signalinfo_t signal;
+    sox_encodinginfo_t encoding;
+    signal = (sox_signalinfo_t) {sampleRate, channel, 16, 0, NULL};
+    encoding = (sox_encodinginfo_t) {
+            SOX_ENCODING_SIGN2,
+            16,
+            0,
+            sox_option_default,
+            sox_option_default,
+            sox_option_default,
+            sox_false
+    };
+
+    assert(in = sox_open_mem_read(inBuffer, inSize, NULL, NULL, NULL));
     size_t tmpBufferSize;
     assert(out = sox_open_memstream_write(&outBuffer, &tmpBufferSize, &in->signal, NULL, "sox",
                                           NULL));
@@ -165,5 +182,6 @@ int SoxProcessor::processBuffer(char *inBuffer, int inSize, char *outBuffer, int
 
     return tmpBufferSize;
 }
+
 
 

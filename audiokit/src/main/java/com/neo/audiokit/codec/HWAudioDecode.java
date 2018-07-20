@@ -25,7 +25,6 @@ public class HWAudioDecode extends BaseCodec {
         if(mMediaDataCallBack != null){
             mMediaDataCallBack.onMediaData(byteBuffer,info,true,IMediaDataCallBack.IMediaDataCallBackTrackTypeAudio);
         }
-       // LogUtils.d(TAG,"HWAudioDecode::processOutBuffer" + info.presentationTimeUs  + " " + info.size);
         return 0;
     }
 

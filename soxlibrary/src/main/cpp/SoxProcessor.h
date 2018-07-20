@@ -2,6 +2,7 @@
 // Created by boyo on 18-7-12.
 //
 #include "sox.h"
+#include "TypeDefine.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
