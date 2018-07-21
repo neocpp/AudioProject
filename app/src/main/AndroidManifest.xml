@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LyricActivity"
+            android:name=".LyricPlayActivity"
             android:label="lyric">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,6 +33,15 @@
         <activity
             android:name=".MidActivity"
             android:label="评分">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RecordActivity"
+            android:label="录制">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

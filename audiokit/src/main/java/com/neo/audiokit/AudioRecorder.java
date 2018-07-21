@@ -25,9 +25,11 @@ public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
         fileWriter = new FileWriter();
         mRootPath = rootPath;
         mCallback = callback;
+
+        startCapture();
     }
 
-    public void startCapture() {
+    private void startCapture() {
         audioCapture = new AudioCapture();
         audioCapture.setFormat(44100, 1, 16);
         TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(44100, 16, 1, true, false);
@@ -47,7 +49,7 @@ public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
         tarsorDispatcher.setAudioTarget(fileWriter);
     }
 
-    public void stopCapture() {
+    private void stopCapture() {
         audioCapture.stop();
     }
 
@@ -89,7 +91,7 @@ public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
     }
 
     public void release() {
-
+        stopCapture();
     }
 
     @Override

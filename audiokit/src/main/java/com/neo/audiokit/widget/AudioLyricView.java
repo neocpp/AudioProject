@@ -10,8 +10,6 @@ import com.zlm.hp.lyrics.widget.AbstractLrcView;
 import com.zlm.hp.lyrics.widget.ManyLyricsView;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 
 /**
  * Created by boyo on 18/7/21.
@@ -20,6 +18,7 @@ import java.io.InputStream;
 public class AudioLyricView extends ManyLyricsView implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
     private MediaPlayer audioPlayer;
+    private MediaPlayer accomPlayer;
     private boolean isLooping = false;
     private IPlayerCallback callback;
 
@@ -33,6 +32,20 @@ public class AudioLyricView extends ManyLyricsView implements MediaPlayer.OnPrep
     public AudioLyricView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
+    }
+
+    public void switchOriginAccom(boolean isOrigin) {
+        if (isOrigin) {
+            audioPlayer.setVolume(1f, 1f);
+            if (accomPlayer != null) {
+                accomPlayer.setVolume(0f, 0f);
+            }
+        } else {
+            audioPlayer.setVolume(0f, 0f);
+            if (accomPlayer != null) {
+                accomPlayer.setVolume(1f, 1f);
+            }
+        }
     }
 
     private void init() {
@@ -55,6 +68,28 @@ public class AudioLyricView extends ManyLyricsView implements MediaPlayer.OnPrep
             e.printStackTrace();
         }
     }
+
+    /**
+     * @param audioPath 原唱路径
+     * @param accomPath 伴奏路径
+     * @param lyricPath
+     */
+    public void setDataSource(String audioPath, String accomPath, String lyricPath) {
+        loadLyric(lyricPath);
+        try {
+            audioPlayer.setDataSource(audioPath);
+            audioPlayer.prepareAsync();
+            audioPlayer.setVolume(0f, 0f);
+
+            accomPlayer = new MediaPlayer();
+            accomPlayer.setDataSource(accomPath);
+            accomPlayer.prepareAsync();
+            accomPlayer.setVolume(1f, 1f);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void loadLyric(final String path) {
         new AsyncTask<String, Integer, Boolean>() {
@@ -101,6 +136,9 @@ public class AudioLyricView extends ManyLyricsView implements MediaPlayer.OnPrep
     public void start() {
         if (isPlayerReady && isLyricReady && !audioPlayer.isPlaying()) {
             audioPlayer.start();
+            if (accomPlayer != null) {
+                accomPlayer.start();
+            }
             play();
         }
     }
@@ -108,6 +146,9 @@ public class AudioLyricView extends ManyLyricsView implements MediaPlayer.OnPrep
     public void seekto(int timeMs) {
         super.seekto(timeMs);
         audioPlayer.seekTo(timeMs);
+        if (accomPlayer != null) {
+            accomPlayer.seekTo(timeMs);
+        }
     }
 
     public boolean isPlaying() {
@@ -118,6 +159,9 @@ public class AudioLyricView extends ManyLyricsView implements MediaPlayer.OnPrep
         if (audioPlayer.isPlaying()) {
             super.pause();
             audioPlayer.pause();
+            if (accomPlayer != null) {
+                accomPlayer.pause();
+            }
         }
     }
 
@@ -127,6 +171,10 @@ public class AudioLyricView extends ManyLyricsView implements MediaPlayer.OnPrep
             audioPlayer.seekTo(0);
             audioPlayer.start();
             play(0);
+            if (accomPlayer != null) {
+                accomPlayer.seekTo(0);
+                accomPlayer.start();
+            }
         }
 
         if (callback != null) {
@@ -170,6 +218,9 @@ public class AudioLyricView extends ManyLyricsView implements MediaPlayer.OnPrep
 
     public void reset() {
         audioPlayer.reset();
+        if (accomPlayer != null) {
+            accomPlayer.reset();
+        }
         resetData();
         isPlayerReady = false;
         isLyricReady = false;
@@ -188,5 +239,9 @@ public class AudioLyricView extends ManyLyricsView implements MediaPlayer.OnPrep
     public void release() {
         audioPlayer.stop();
         audioPlayer.release();
+        if (accomPlayer != null) {
+            accomPlayer.stop();
+            accomPlayer.release();
+        }
     }
 }

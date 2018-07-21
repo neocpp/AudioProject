@@ -8,7 +8,7 @@ import android.widget.SeekBar;
 
 import com.neo.audiokit.widget.AudioLyricView;
 
-public class LyricActivity extends AppCompatActivity implements AudioLyricView.IPlayerCallback, SeekBar.OnSeekBarChangeListener {
+public class LyricPlayActivity extends AppCompatActivity implements AudioLyricView.IPlayerCallback, SeekBar.OnSeekBarChangeListener {
     private AudioLyricView lyricsView;
     private String musicPath;
     private String lyricPath;

@@ -124,13 +124,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPause() {
         super.onPause();
         audioPlayer.pause();
-        audioRecorder.stopCapture();
+//        audioRecorder.stopCapture();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        audioRecorder.startCapture();
+//        audioRecorder.startCapture();
     }
 
     @Override
