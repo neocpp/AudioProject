@@ -5,6 +5,11 @@
     android:background="@android:color/black"
     android:orientation="vertical">
 
+    <com.neo.audiokit.widget.MidiView
+        android:id="@+id/mid_view"
+        android:layout_width="match_parent"
+        android:layout_height="125dp" />
+
     <com.neo.audiokit.widget.AudioLyricView
         android:id="@+id/lyric_view"
         android:layout_width="match_parent"

@@ -201,4 +201,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onRecordStop() {
 
     }
+
+    @Override
+    public void onDetectPitch(float pitchInHz) {
+
+    }
 }

@@ -9,6 +9,7 @@ import android.widget.CompoundButton;
 
 import com.neo.audiokit.AudioRecorder;
 import com.neo.audiokit.widget.AudioLyricView;
+import com.neo.audiokit.widget.MidiView;
 
 public class RecordActivity extends AppCompatActivity implements AudioLyricView.IPlayerCallback,
         AudioRecorder.IRecordCallback {
@@ -17,6 +18,7 @@ public class RecordActivity extends AppCompatActivity implements AudioLyricView.
     private String accomPath; // 伴奏
     private String lyricPath;
     private AudioRecorder audioRecorder;
+    private MidiView midiView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,8 @@ public class RecordActivity extends AppCompatActivity implements AudioLyricView.
                 }
             }
         });
+
+        midiView = (MidiView) findViewById(R.id.mid_view);
 
         prepareFile();
 
@@ -136,5 +140,12 @@ public class RecordActivity extends AppCompatActivity implements AudioLyricView.
     @Override
     public void onRecordStop() {
 
+    }
+
+    @Override
+    public void onDetectPitch(float pitchInHz) {
+        if (midiView != null) {
+            midiView.setPitch(pitchInHz);
+        }
     }
 }
