@@ -1,17 +1,18 @@
 package com.neo.audioproject;
 
-import android.os.AsyncTask;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.SeekBar;
 
-import com.zlm.hp.lyrics.LyricsReader;
-import com.zlm.hp.lyrics.widget.AbstractLrcView;
-import com.zlm.hp.lyrics.widget.ManyLyricsView;
+import com.neo.audiokit.widget.AudioLyricView;
 
-import java.io.InputStream;
-
-public class LyricActivity extends AppCompatActivity {
-    private ManyLyricsView lyricsView;
+public class LyricActivity extends AppCompatActivity implements AudioLyricView.IPlayerCallback, SeekBar.OnSeekBarChangeListener {
+    private AudioLyricView lyricsView;
+    private String musicPath;
+    private String lyricPath;
+    private SeekBar seekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,38 +20,97 @@ public class LyricActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lyric);
 
         lyricsView = findViewById(R.id.lyric_view);
-        loadLrcFile();
+        lyricsView.setPaintColor(new int[]{Color.WHITE, Color.WHITE});
+        lyricsView.setPaintHLColor(new int[]{Color.RED, Color.RED});
+
+        lyricsView.setCallback(this);
+        lyricsView.setLooping(true);
+
+        findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (lyricsView.isPlaying()) {
+                    lyricsView.pause();
+                } else {
+                    lyricsView.start();
+                }
+            }
+        });
+
+        seekBar = findViewById(R.id.seekbar);
+        seekBar.setOnSeekBarChangeListener(this);
+
+        prepareFile();
+
+        lyricsView.setDataSource(musicPath, lyricPath);
     }
 
-    private void loadLrcFile() {
+    private void prepareFile() {
+        try {
+            musicPath = getExternalFilesDir("ex").getAbsolutePath() + "/test.mp3";
+            FileUtils.copyFileFromAssets(this, "test.mp3", musicPath);
 
-        new AsyncTask<String, Integer, String>() {
+            lyricPath = getExternalFilesDir("ex").getAbsolutePath() + "/aiqingyu_krc.krc";
+            FileUtils.copyFileFromAssets(this, "aiqingyu_krc.krc", lyricPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-            @Override
-            protected String doInBackground(String... strings) {
-                InputStream inputStream = getResources().openRawResource(R.raw.aiqingyu_krc);
-                try {
-                    //延迟看一下加载效果
-                    Thread.sleep(500);
+    @Override
+    protected void onPause() {
+        super.onPause();
+        lyricsView.pause();
+    }
 
-                    LyricsReader lyricsReader = new LyricsReader();
-                    byte[] data = new byte[inputStream.available()];
-                    inputStream.read(data);
-                    lyricsReader.loadLrc(data, null, "aiqingyu_krc.krc");
-                    lyricsView.setLyricsReader(lyricsReader);
-                    //
-                    lyricsView.setExtraLrcStatus(AbstractLrcView.EXTRALRCSTATUS_NOSHOWEXTRALRC);
-                    lyricsView.play(0);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        lyricsView.start();
+    }
 
-                    inputStream.close();
-                } catch (Exception e) {
-                    lyricsView.setLrcStatus(AbstractLrcView.LRCSTATUS_ERROR);
-                    e.printStackTrace();
-                }
-                inputStream = null;
+    @Override
+    public void onPrepared() {
+        seekBar.setMax((int) lyricsView.getDuration());
+        lyricsView.start();
 
-                return null;
-            }
-        }.execute("");
+    }
+
+    @Override
+    public void onPlayProgressChanged(long curTimeMs) {
+        seekBar.setProgress((int) curTimeMs);
+    }
+
+    @Override
+    public void onCompletion() {
+
+    }
+
+    @Override
+    public void onError() {
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        lyricsView.release();
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+        if (b) {
+            lyricsView.seekto(i);
+        }
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
     }
 }

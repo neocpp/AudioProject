@@ -1,7 +1,6 @@
 package com.neo.audiokit;
 
 import android.media.MediaPlayer;
-import android.media.audiofx.AutomaticGainControl;
 import android.media.audiofx.EnvironmentalReverb;
 import android.media.audiofx.Equalizer;
 import android.media.audiofx.PresetReverb;

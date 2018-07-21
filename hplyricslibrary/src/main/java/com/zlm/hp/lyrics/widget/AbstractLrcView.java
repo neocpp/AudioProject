@@ -837,6 +837,14 @@ public abstract class AbstractLrcView extends View {
         }
     }
 
+    public void play() {
+        play((int) mCurPlayingTime);
+    }
+
+    public long getCurrentPlayingTime() {
+        return mCurPlayingTime;
+    }
+
     /**
      * 歌词暂停
      */
