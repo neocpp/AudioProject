@@ -5,9 +5,9 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 
-import com.zlm.hp.lyrics.LyricsReader;
-import com.zlm.hp.lyrics.widget.AbstractLrcView;
-import com.zlm.hp.lyrics.widget.ManyLyricsView;
+import lyrics.LyricsReader;
+import lyrics.widget.AbstractLrcView;
+import lyrics.widget.ManyLyricsView;
 
 import java.io.File;
 
