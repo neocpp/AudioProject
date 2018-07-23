@@ -56,12 +56,12 @@ public class MidiNoteInfo implements Comparable<MidiNoteInfo> {
         return Integer.valueOf(start).compareTo(Integer.valueOf(o.start));
     }
 
-    public double getDuration() {
-        return duration / 1000.0;
+    public int getDuration() {
+        return duration;
     }
 
-    public double getStart() {
-        return start / 1000.0;
+    public int getStart() {
+        return start;
     }
 
     public int getVelocity() {

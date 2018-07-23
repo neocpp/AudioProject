@@ -13,6 +13,7 @@ import com.neo.audiokit.midi.MidiNoteInfo;
 import com.neo.audiokit.midi.MidiParser;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,13 +22,20 @@ import java.util.List;
 
 public class MidiView extends View {
     private List<MidiNoteInfo> processedSamples;
-    private Handler mHandler = new Handler();
+    private List<MidiNoteInfo> needDrawInfoList;
 
     private Paint paint;
-    int startOffset = 180;
+    int startLineOffset = 180;
 
-    int mPitchHeight = 0;
+    float mPitchHeight = 0;
     int mPitchRectWidth = 5;
+
+    private int widthTimeMs = 5000;
+    private float timePerPixel;
+    private float inViewStartTime;
+    private float inViewEndTime;
+
+    private float midiInterval;
 
     public MidiView(Context context) {
         super(context);
@@ -46,6 +54,15 @@ public class MidiView extends View {
 
     private void init() {
         paint = new Paint();
+        needDrawInfoList = new ArrayList<>();
+
+        float screenWidth = getContext().getResources().getDisplayMetrics().widthPixels;
+        timePerPixel = widthTimeMs / screenWidth;
+
+        inViewStartTime = -timePerPixel * startLineOffset;
+        inViewEndTime = widthTimeMs + inViewStartTime;
+
+        midiInterval = (getHeight() - mPitchRectWidth * 2) / 7f;
     }
 
     public void loadMid(String path) {
@@ -56,8 +73,17 @@ public class MidiView extends View {
             e.printStackTrace();
         }
 
-        // TODO
+    }
 
+    public void setProgress(final float timeMs) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                inViewStartTime = timeMs - startLineOffset * timePerPixel;
+                inViewEndTime = widthTimeMs + inViewStartTime;
+                invalidate();
+            }
+        });
     }
 
     @Override
@@ -82,23 +108,59 @@ public class MidiView extends View {
         // 画竖线
         paint.setColor(Color.WHITE);
         paint.setStrokeWidth(3);
-        canvas.drawLine(startOffset, getTop(), startOffset, getBottom(), paint);
+        canvas.drawLine(startLineOffset, getTop(), startLineOffset, getBottom(), paint);
 
         // 画人声音高
-        canvas.drawRect(startOffset - mPitchRectWidth, mPitchHeight - mPitchRectWidth,
-                startOffset + mPitchRectWidth, mPitchHeight + mPitchRectWidth, paint);
+        canvas.drawRect(startLineOffset - mPitchRectWidth, mPitchHeight - mPitchRectWidth,
+                startLineOffset + mPitchRectWidth, mPitchHeight + mPitchRectWidth, paint);
+
+        // 画midi信息
+        needDrawInfoList.clear();
+        for (MidiNoteInfo info : processedSamples) {
+            int startMs = info.getStart();
+            if (startMs > inViewEndTime) {
+                break;
+            }
+            int endMs = startMs + info.getDuration();
+            if (endMs < inViewStartTime) {
+                continue;
+            }
+            needDrawInfoList.add(info);
+        }
+
+        paint.setColor(Color.GREEN);
+        paint.setStrokeWidth(mPitchRectWidth);
+        if (midiInterval <= 0) {
+            midiInterval = (getHeight() - mPitchRectWidth * 2) / 7f;
+        }
+        for (MidiNoteInfo info : needDrawInfoList) {
+            float startx = (info.getStart() - inViewStartTime) / timePerPixel;
+            float endx = startx + (float) info.getDuration() / timePerPixel;
+
+            float lineHeight = midiNoteToHeight(info.getMidiNote());
+            canvas.drawLine(startx, lineHeight, endx, lineHeight, paint);
+        }
+
     }
 
-    public void setPitch(final float pitch) {
+    private static double hertzToMidiNote(double hertz) {
+        return 69 + 12 * Math.log(hertz / 440) / Math.log(2);
+    }
+
+    public void setPitch(float pitch) {
         if (pitch > 0) {
+            final double midinote = hertzToMidiNote(pitch);
             post(new Runnable() {
                 @Override
                 public void run() {
-                    mPitchHeight = getHeight() - (int) (pitch % getHeight());
-                    invalidate();
+                    mPitchHeight = midiNoteToHeight((float) midinote);
                 }
             });
 
         }
+    }
+
+    private float midiNoteToHeight(float midiNote) {
+        return getHeight() - (midiNote % 7 * midiInterval) + mPitchRectWidth;
     }
 }

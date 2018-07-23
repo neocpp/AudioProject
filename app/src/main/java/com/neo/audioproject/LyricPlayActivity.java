@@ -79,6 +79,7 @@ public class LyricPlayActivity extends AppCompatActivity implements AudioLyricVi
     @Override
     public void onPlayProgressChanged(long curTimeMs) {
         seekBar.setProgress((int) curTimeMs);
+
     }
 
     @Override

@@ -17,6 +17,7 @@ public class RecordActivity extends AppCompatActivity implements AudioLyricView.
     private String musicPath;
     private String accomPath; // 伴奏
     private String lyricPath;
+    private String midPath;
     private AudioRecorder audioRecorder;
     private MidiView midiView;
 
@@ -59,9 +60,11 @@ public class RecordActivity extends AppCompatActivity implements AudioLyricView.
             }
         });
 
-        midiView = (MidiView) findViewById(R.id.mid_view);
 
         prepareFile();
+
+        midiView = (MidiView) findViewById(R.id.mid_view);
+        midiView.loadMid(midPath);
 
         lyricsView.setDataSource(musicPath, accomPath, lyricPath);
         audioRecorder = new AudioRecorder(getExternalFilesDir("record").getAbsolutePath(), this);
@@ -78,6 +81,13 @@ public class RecordActivity extends AppCompatActivity implements AudioLyricView.
 
             lyricPath = getExternalFilesDir("ex").getAbsolutePath() + "/aiqingyu_krc.krc";
             FileUtils.copyFileFromAssets(this, "aiqingyu_krc.krc", lyricPath);
+
+            try {
+                midPath = getExternalFilesDir("midi").getAbsolutePath() + "/tiger.mid";
+                FileUtils.copyFileFromAssets(this, "tiger.mid", midPath);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -102,6 +112,7 @@ public class RecordActivity extends AppCompatActivity implements AudioLyricView.
 
     @Override
     public void onPlayProgressChanged(long curTimeMs) {
+        midiView.setProgress(curTimeMs);
     }
 
     @Override

@@ -1,1 +1,1 @@
-include ':app', ':soxlibrary', ':audiokit', ':hplyricslibrary', ':audiokit-release'
+include ':app', ':soxlibrary', ':audiokit', ':audiokit-release'
