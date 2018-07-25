@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Spinner sp = findViewById(R.id.spinner);
         sp.setAdapter(new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, audioPlayer.getReverbValues()));
+                android.R.layout.simple_spinner_item, audioPlayer.getPresetValues()));
         // 为Spinner的列表项选中事件设置监听器
         sp.setOnItemSelectedListener(new Spinner
                 .OnItemSelectedListener() {
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onItemSelected(AdapterView<?> arg0
                     , View arg1, int arg2, long arg3) {
                 // 设定音场
-                audioPlayer.setReverb(arg2);
+//                audioPlayer.setReverb(arg2);
             }
 
             @Override
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                audioPlayer.setDecayTime(progress / 100f);
                 break;
             case R.id.seekbar_room_level:
-                audioPlayer.setRoomLevel(progress / 100f);
+//                audioPlayer.setRoomLevel(progress / 100f);
                 break;
             case R.id.seekbar_pitch:
                 float pitch = 0.5f + 1.3f * progress / 100f;

@@ -1,9 +1,9 @@
 package com.neo.audiokit.sox;
 
-public class ReverbBean {
-    public int reverberance;
-    public int hFDamping;
-    public int roomScale;
+public class SoxReverbBean {
+    public int reverberance; // 0~100
+    public int hFDamping; // 0~100
+    public int roomScale; // 0~100
     public int stereoDepth;
     public int preDelay;
     public int wetGain;

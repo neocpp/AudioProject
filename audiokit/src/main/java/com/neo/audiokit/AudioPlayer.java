@@ -1,7 +1,7 @@
 package com.neo.audiokit;
 
+import android.media.audiofx.EnvironmentalReverb;
 import android.media.audiofx.Equalizer;
-import android.media.audiofx.PresetReverb;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -12,7 +12,6 @@ import com.neo.audiokit.exo.SonicExoHandler;
 import com.neo.audiokit.framework.AudioChain;
 import com.neo.audiokit.framework.AudioFrame;
 import com.neo.audiokit.framework.IAudioTarget;
-import com.neo.audiokit.sox.ReverbBean;
 import com.neo.audiokit.sox.SoxHandler;
 import com.neo.audiokit.tarsor.TarsorDispatcher;
 
@@ -49,7 +48,8 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
     private SoxHandler soxHandler;
 
     Equalizer mEqualizer;
-    PresetReverb mPresetReverb;
+    //    PresetReverb mPresetReverb;
+    EnvironmentalReverb mEvnReverb;
     private List<String> reverbVals = new ArrayList<>();
     private List<Short> reverbNames = new ArrayList<>();
 
@@ -65,12 +65,15 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
     public AudioPlayer(AudioPlayerCallBack callBack) {
         mCallBack = callBack;
 
-        mPresetReverb = new PresetReverb(0, 0);
-        mPresetReverb.setEnabled(true);
+//        mPresetReverb = new PresetReverb(0, 0);
+//        mPresetReverb.setEnabled(true);
 
         mEqualizer = new Equalizer(0, 0);
         // 启用均衡控制效果
         mEqualizer.setEnabled(true);
+
+        mEvnReverb = new EnvironmentalReverb(0, 0);
+        mEvnReverb.setEnabled(true);
 
         for (short i = 0; i < mEqualizer.getNumberOfPresets(); i++) {
             reverbNames.add(i);
@@ -78,34 +81,25 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
         }
     }
 
-    public List<String> getReverbValues() {
+    public List<String> getPresetValues() {
         return reverbVals;
     }
 
-    public void setReverb(int idx) {
+    public void setPreset(int idx) {
         try {
             mEqualizer.usePreset(reverbNames.get(idx));
-//            mPresetReverb.setPreset(reverbNames.get(idx));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void setRoomLevel(float ratio) {
-        PresetReverb.Settings settings = mPresetReverb.getProperties();
-        String str = settings.toString();
-        settings = new PresetReverb.Settings(str);
-        short preset = (ratio < 1.4f) ? PresetReverb.PRESET_NONE :
-                (ratio < 2.8f) ? PresetReverb.PRESET_SMALLROOM :
-                        (ratio < 4.2f) ? PresetReverb.PRESET_MEDIUMROOM :
-                                (ratio < 5.6f) ? PresetReverb.PRESET_LARGEROOM :
-                                        (ratio < 7f) ? PresetReverb.PRESET_MEDIUMHALL :
-                                                (ratio < 8.4f) ? PresetReverb.PRESET_LARGEHALL :
-                                                        PresetReverb.PRESET_PLATE;
-        settings.preset = preset;
-        mPresetReverb.setProperties(settings);
-    }
-
+//    public void setReverb(int idx) {
+//        try {
+//            mPresetReverb.setPreset(reverbNames.get(idx));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public int setDataSource(String path) {
         mPath = path;
@@ -133,9 +127,11 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
 
     public void setReverb(ReverbBean bean) {
         mReverbBean = bean;
-        if (soxHandler != null) {
-            soxHandler.setParam(bean);
-        }
+//        if (soxHandler != null) {
+//            soxHandler.setParam(bean);
+//        }
+
+        mEvnReverb.setProperties(mReverbBean.getReverbSettings());
     }
 
     public int prepareAsync() {
@@ -333,12 +329,13 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
             }
             soxHandler = new SoxHandler();
             soxHandler.init(mAudioReader.getSampleRate(), mAudioReader.getChannelNum());
-            soxHandler.setParam(mReverbBean);
+//            soxHandler.setParam(mReverbBean);
             setAudioTarget(mSonicHandler);
             mSonicHandler.setAudioTarget(mTarsorProcesser);
             mTarsorProcesser.setAudioTarget(soxHandler);
             soxHandler.setAudioTarget(audioConsumer);
             mAudioTrack = new AudioTrackNonBlock(mAudioReader.getSampleRate(), mAudioReader.getChannelNum());
+            mAudioTrack.attachAuxEffect(mEvnReverb.getId());
             mAudioTrack.setSpeed(mPlaySpeed);
             if (mFirstSeektPos > 0) {
                 mAudioTrack.seekTo(mFirstSeektPos);

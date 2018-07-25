@@ -3,51 +3,179 @@ package com.neo.audioproject;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.SeekBar;
+import android.widget.Spinner;
 
-import com.neo.audiokit.AudioPlayer;
-import com.neo.audiokit.sox.ReverbBean;
+import com.neo.audiokit.AudioEffectPlayManager;
+import com.neo.audiokit.ReverbBean;
 import com.neo.audiokit.widget.waveform.view.WaveformView;
 
 
-public class EditActivity extends AppCompatActivity {
+public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
     private String wavFile;
+    private String outFile;
+    private String musicPath;
     private WaveformView waveformView;
-    private AudioPlayer audioPlayer;
+    private ReverbBean reverbBean;
+    private AudioEffectPlayManager playManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wave_form);
+        setContentView(R.layout.activity_edit);
         prepareFile();
 
         waveformView = findViewById(R.id.waveform);
         waveformView.loadFile(wavFile);
         waveformView.setDefaultColor(Color.BLUE);
 
-        audioPlayer = new AudioPlayer(null);
-        audioPlayer.setDataSource(wavFile);
-        ReverbBean reverbBean = new ReverbBean();
-        reverbBean.reverberance = 50;
-        reverbBean.hFDamping = 50;
-        reverbBean.roomScale = 85;
-        reverbBean.preDelay = 30;
-        reverbBean.stereoDepth = 0;
-        reverbBean.wetGain = 0;
-        audioPlayer.setReverb(reverbBean);
+        reverbBean = new ReverbBean();
+
+        playManager = new AudioEffectPlayManager(wavFile, musicPath);
+        playManager.setReverb(reverbBean);
 
         findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
             @Override
+            public void onClick(View v) {
+                playManager.start();
+            }
+        });
+
+        Spinner sp = findViewById(R.id.spinner);
+        sp.setAdapter(new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, playManager.getPresetValues()));
+        // 为Spinner的列表项选中事件设置监听器
+        sp.setOnItemSelectedListener(new Spinner
+                .OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> arg0
+                    , View arg1, int arg2, long arg3) {
+                playManager.setPreset(arg2);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+
+        SeekBar seekbar = findViewById(R.id.seekbar_decay);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_decayhf);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_room_level);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_roomhf_level);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_density);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_diffusion);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_reflect_decay);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_reflect_level);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_reverb_decay);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_reverb_level);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_pitch);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_rec_volume);
+        seekbar.setOnSeekBarChangeListener(this);
+        seekbar = findViewById(R.id.seekbar_music_volume);
+        seekbar.setOnSeekBarChangeListener(this);
+
+        findViewById(R.id.btn_compose).setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View view) {
-                audioPlayer.start();
+                playManager.composeFile(outFile, new AudioEffectPlayManager.IComposeCallback() {
+                    @Override
+                    public void onComposeFinish(boolean success, String outPath) {
+                        Log.e("test", "compose finish");
+                    }
+                });
             }
         });
     }
 
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        float progressf = progress / 100f;
+        switch (seekBar.getId()) {
+            case R.id.seekbar_decay:
+                reverbBean.reverbDelay = progress;
+                playManager.setReverb(reverbBean);
+                break;
+            case R.id.seekbar_decayhf:
+                reverbBean.decayHFRatio = progress;
+                playManager.setReverb(reverbBean);
+                break;
+            case R.id.seekbar_room_level:
+                reverbBean.roomLevel = progress;
+                playManager.setReverb(reverbBean);
+                break;
+            case R.id.seekbar_roomhf_level:
+                reverbBean.roomHFLevel = progress;
+                playManager.setReverb(reverbBean);
+                break;
+            case R.id.seekbar_density:
+                reverbBean.density = progress;
+                playManager.setReverb(reverbBean);
+                break;
+            case R.id.seekbar_diffusion:
+                reverbBean.diffusion = progress;
+                playManager.setReverb(reverbBean);
+                break;
+            case R.id.seekbar_reflect_decay:
+                reverbBean.reflectionsDelay = progress;
+                playManager.setReverb(reverbBean);
+                break;
+            case R.id.seekbar_reflect_level:
+                reverbBean.reflectionsLevel = progress;
+                playManager.setReverb(reverbBean);
+                break;
+            case R.id.seekbar_reverb_level:
+                reverbBean.reverbLevel = progress;
+                playManager.setReverb(reverbBean);
+                break;
+            case R.id.seekbar_reverb_decay:
+                reverbBean.reverbDelay = progress;
+                playManager.setReverb(reverbBean);
+                break;
+            case R.id.seekbar_pitch:
+                playManager.setPitch(progressf);
+                break;
+            case R.id.seekbar_rec_volume:
+                playManager.setRecVolume(progressf);
+                break;
+            case R.id.seekbar_music_volume:
+                playManager.setMusicVolume(progressf);
+                break;
+        }
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
     private void prepareFile() {
         try {
+            outFile = getExternalFilesDir("ex").getAbsolutePath() + "/out.aac";
             wavFile = getExternalFilesDir("ex").getAbsolutePath() + "/because_of_you.wav";
             FileUtils.copyFileFromAssets(this, "because_of_you.wav", wavFile);
+//            wavFile = getExternalFilesDir("record").getAbsolutePath() + "/rec.aac";
+            musicPath = getExternalFilesDir("ex").getAbsolutePath() + "/test.mp3";
+            FileUtils.copyFileFromAssets(this, "test.mp3", musicPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,7 +184,8 @@ public class EditActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        audioPlayer.stop();
-        audioPlayer.release();
+        playManager.stop();
     }
+
+
 }

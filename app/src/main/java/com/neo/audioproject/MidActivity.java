@@ -8,9 +8,9 @@ import android.view.View;
 import android.widget.SeekBar;
 
 import com.neo.audiokit.AudioPlayer;
+import com.neo.audiokit.ReverbBean;
 import com.neo.audiokit.midi.MidiNoteInfo;
 import com.neo.audiokit.midi.MidiParser;
-import com.neo.audiokit.sox.ReverbBean;
 
 import java.io.File;
 import java.util.List;

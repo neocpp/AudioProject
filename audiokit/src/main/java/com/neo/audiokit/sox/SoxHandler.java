@@ -10,7 +10,7 @@ import java.nio.ByteOrder;
 public class SoxHandler extends AudioChain {
     private long mSampleRate;
     private int mChannels;
-    private ReverbBean reverbBean;
+    private SoxReverbBean reverbBean;
     private long byteRate;
 
     public void init(long sampleRate, int channels) {
@@ -81,7 +81,7 @@ public class SoxHandler extends AudioChain {
         return reverbBean == null ? false : reverbBean.isUnset();
     }
 
-    public void setParam(ReverbBean bean) {
+    public void setParam(SoxReverbBean bean) {
         reverbBean = bean;
     }
 

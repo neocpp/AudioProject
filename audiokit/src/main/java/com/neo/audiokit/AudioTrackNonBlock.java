@@ -114,6 +114,10 @@ public class AudioTrackNonBlock {
             int bufferSizeInBytes = 1024 * 100;
             int mode = AudioTrack.MODE_STREAM;
             mAudioTrack = new AudioTrack(streamType, mSampleRateInHz, channelConfig, audioFormat, bufferSizeInBytes, mode);
+            if (auxEffectId >= 0) {
+                mAudioTrack.attachAuxEffect(auxEffectId);
+                mAudioTrack.setAuxEffectSendLevel(1f);
+            }
             mAudioTrack.play();
             mConsumeThreadRunning = true;
             while (mConsumeThreadRunning) {
@@ -142,8 +146,18 @@ public class AudioTrackNonBlock {
     }
 
     public void setVolume(float gain) {
-        if(mAudioTrack != null){
+        if (mAudioTrack != null) {
             mAudioTrack.setStereoVolume(gain, gain);
+        }
+    }
+
+    private int auxEffectId = -1;
+
+    public void attachAuxEffect(int id) {
+        if (mAudioTrack != null) {
+            mAudioTrack.attachAuxEffect(id);
+        } else {
+            auxEffectId = id;
         }
     }
 }
