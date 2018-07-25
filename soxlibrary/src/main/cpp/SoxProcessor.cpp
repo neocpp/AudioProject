@@ -111,19 +111,6 @@ int SoxProcessor::processBuffer(char *inBuffer, int inSize, char *outBuffer, int
                                 int roomScale,
                                 int stereoDepth,
                                 int preDelay, int wetGain) {
-    sox_signalinfo_t signal;
-    sox_encodinginfo_t encoding;
-    signal = (sox_signalinfo_t) {sampleRate, channel, 16, 0, NULL};
-    encoding = (sox_encodinginfo_t) {
-            SOX_ENCODING_SIGN2,
-            16,
-            0,
-            sox_option_default,
-            sox_option_default,
-            sox_option_default,
-            sox_false
-    };
-
     assert(in = sox_open_mem_read(inBuffer, inSize, NULL, NULL, NULL));
     size_t tmpBufferSize;
     assert(out = sox_open_memstream_write(&outBuffer, &tmpBufferSize, &in->signal, NULL, "sox",

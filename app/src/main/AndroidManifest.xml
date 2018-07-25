@@ -22,6 +22,15 @@
             <!--</intent-filter>-->
         <!--</activity>-->
         <activity
+            android:name=".EditActivity"
+            android:label="编辑">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".LyricPlayActivity"
             android:label="lyric">
             <intent-filter>
