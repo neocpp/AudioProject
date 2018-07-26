@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
@@ -116,6 +115,9 @@ public class MidiView extends View {
 
         // 画midi信息
         needDrawInfoList.clear();
+        if (processedSamples == null || processedSamples.isEmpty()) {
+            return;
+        }
         for (MidiNoteInfo info : processedSamples) {
             int startMs = info.getStart();
             if (startMs > inViewEndTime) {
