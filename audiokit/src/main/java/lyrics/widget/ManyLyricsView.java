@@ -20,15 +20,15 @@ import android.view.ViewTreeObserver;
 import android.view.animation.LinearInterpolator;
 import android.widget.Scroller;
 
+import java.util.List;
+import java.util.TreeMap;
+
 import lyrics.LyricsReader;
 import lyrics.model.LyricsInfo;
 import lyrics.model.LyricsLineInfo;
 import lyrics.utils.ColorUtils;
 import lyrics.utils.LyricsUtils;
 import lyrics.utils.TimeUtils;
-
-import java.util.List;
-import java.util.TreeMap;
 
 
 /**
@@ -650,7 +650,7 @@ public class ManyLyricsView extends AbstractLrcView {
         float lineY = (getHeight() - lineH) / 2;
         float lineLeft = textX + textWidth + linePadding;
         float lineR = rectL - linePadding;
-        LinearGradient linearGradientHL = new LinearGradient(lineLeft, lineY + lineH, lineR, lineY + lineH, new int[]{ColorUtils.parserColor(mPaintLineColor, 255), ColorUtils.parserColor(mPaintLineColor, 0), ColorUtils.parserColor(mPaintLineColor, 0), ColorUtils.parserColor(mPaintLineColor, 255)}, new float[]{0f, 0.2f, 0.8f,1f}, Shader.TileMode.CLAMP);
+        LinearGradient linearGradientHL = new LinearGradient(lineLeft, lineY + lineH, lineR, lineY + lineH, new int[]{ColorUtils.parserColor(mPaintLineColor, 255), ColorUtils.parserColor(mPaintLineColor, 0), ColorUtils.parserColor(mPaintLineColor, 0), ColorUtils.parserColor(mPaintLineColor, 255)}, new float[]{0f, 0.2f, 0.8f, 1f}, Shader.TileMode.CLAMP);
         mPaintLine.setShader(linearGradientHL);
         canvas.drawRect(lineLeft, lineY, lineR, lineY + lineH, mPaintLine);
 
@@ -664,8 +664,14 @@ public class ManyLyricsView extends AbstractLrcView {
     private void updateManyLrcView(long playProgress) {
         //获取数据
         LyricsReader lyricsReader = getLyricsReader();
+        if (lyricsReader == null) {
+            return;
+        }
         TreeMap<Integer, LyricsLineInfo> lrcLineInfos = getLrcLineInfos();
         int lyricsLineNum = getLyricsLineNum();
+        if(lrcLineInfos == null){
+            return;
+        }
 
         //
         int newLyricsLineNum = LyricsUtils.getLineNumber(lyricsReader.getLyricsType(), lrcLineInfos, playProgress, lyricsReader.getPlayOffset());

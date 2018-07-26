@@ -36,7 +36,7 @@ public class RecordActivity extends AppCompatActivity implements AudioLyricView.
             @Override
             public void onClick(View view) {
                 if (!audioRecorder.isRecording()) {
-//                    lyricsView.start();
+                    lyricsView.start();
                     audioRecorder.startRecord();
                 }
             }
@@ -53,7 +53,7 @@ public class RecordActivity extends AppCompatActivity implements AudioLyricView.
             @Override
             public void onClick(View view) {
                 if (audioRecorder.isRecording()) {
-//                    lyricsView.pause();
+                    lyricsView.pause();
                     audioRecorder.stopRecord();
                     finishRecord();
                 }
