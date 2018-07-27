@@ -3,6 +3,7 @@ package com.neo.audioproject;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -37,6 +38,7 @@ public class RecordActivity extends AppCompatActivity implements AudioLyricView.
             public void onClick(View view) {
                 if (!audioRecorder.isRecording()) {
                     lyricsView.start();
+                    midiView.reset();
                     audioRecorder.startRecord();
                 }
             }
@@ -125,6 +127,8 @@ public class RecordActivity extends AppCompatActivity implements AudioLyricView.
 
     private void finishRecord() {
         String recFile = audioRecorder.getFilePath();
+        int score = midiView.getScore();
+        Log.e("test", "score:" + score);
     }
 
     @Override
