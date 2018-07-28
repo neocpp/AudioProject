@@ -1,13 +1,18 @@
 package com.neo.audiokit;
 
 import android.media.MediaPlayer;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
+import com.lib.sox.SoxJni;
 import com.neo.audiokit.codec.CodecBufferInfo;
 import com.neo.audiokit.codec.IMediaDataCallBack;
 import com.neo.audiokit.codec.MediaFormat;
+import com.neo.audiokit.exo.SonicExoHandler;
 import com.neo.audiokit.framework.AudioChain;
 import com.neo.audiokit.framework.AudioFrame;
+import com.neo.audiokit.io.WavWriter;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -22,16 +27,21 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
     private String recPath;
     private String musicPath;
     private ReverbBean reverbBean;
+    private IPlayListener playListener;
+    private Handler mHandler;
 
     public AudioEffectPlayManager(String recPath, String musicPath) {
         recPlayer = new AudioPlayer(this);
         recPlayer.setDataSource(recPath);
+        recPlayer.prepare();
+
+        mHandler = new Handler(Looper.getMainLooper());
 
         if (!TextUtils.isEmpty(musicPath)) {
             musicPlayer = new MediaPlayer();
             try {
                 musicPlayer.setDataSource(musicPath);
-                musicPlayer.prepareAsync();
+                musicPlayer.prepare();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -39,6 +49,14 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
 
         this.recPath = recPath;
         this.musicPath = musicPath;
+    }
+
+    public void setIPlayListener(IPlayListener l) {
+        playListener = l;
+    }
+
+    public long getDuration() {
+        return recPlayer.getDuration();
     }
 
     public List<String> getPresetValues() {
@@ -93,18 +111,39 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
     public void stop() {
         recPlayer.stop();
         if (musicPlayer != null) {
+            musicPlayer.pause();
             musicPlayer.stop();
+            musicPlayer.release();
         }
     }
 
     @Override
     public void onCompletion() {
+        recPlayer.start();
+        if (musicPlayer != null) {
+            musicPlayer.seekTo(0);
+            musicPlayer.start();
+        }
+    }
+
+    @Override
+    public void onPrepared(AudioPlayer audioPlayer) {
 
     }
 
     @Override
-    public void onDuration(long fileDuration) {
-
+    public void onPositionChanged(final long timeMs) {
+        if (playListener == null) {
+            return;
+        }
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (playListener != null) {
+                    playListener.onPlayProgressChanged(timeMs);
+                }
+            }
+        });
     }
 
     private Thread composeThread;
@@ -124,37 +163,38 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
         @Override
         public void run() {
             File outf = new File(outFile);
-//            if (Math.abs(pitch - 1) > .02) {
-//                String tmpF = outf.getParent() + "/pitch.aac";
-//                AudioFileReader audioFileReader = new AudioFileReader();
-//                audioFileReader.openReader(recPath, Long.MIN_VALUE, Long.MAX_VALUE, AudioEffectPlayManager.this);
-//                SonicExoHandler mSonicHandler = new SonicExoHandler(1f, pitch);
-//                mSonicHandler.init(audioFileReader.getSampleRate(), audioFileReader.getChannelNum());
-//                setAudioTarget(mSonicHandler);
-//                FileWriter fileWriter = new FileWriter();
-//                mSonicHandler.setAudioTarget(fileWriter);
-//                fileWriter.startRecord(tmpF);
-//                audioFileReader.start();
-//                audioFileReader.closeReader();
-//                fileWriter.stopRecord();
-//                recPath = tmpF;
-//            }
+            if (Math.abs(pitch - 1) > .02) {
+                String tmpF = outf.getParent() + "/pitch.wav";
+                AudioFileReader audioFileReader = new AudioFileReader();
+                audioFileReader.openReader(recPath, Long.MIN_VALUE, Long.MAX_VALUE, AudioEffectPlayManager.this);
+                SonicExoHandler mSonicHandler = new SonicExoHandler(1f, pitch);
+                mSonicHandler.init(audioFileReader.getSampleRate(), audioFileReader.getChannelNum());
+                setAudioTarget(mSonicHandler);
+                WavWriter fileWriter = new WavWriter();
+                fileWriter.setAudioParma(audioFileReader.getSampleRate(), audioFileReader.getChannelNum());
+                fileWriter.startRecord(tmpF);
+                mSonicHandler.setAudioTarget(fileWriter);
+                audioFileReader.start();
+                audioFileReader.closeReader();
+                fileWriter.stopRecord();
+                recPath = tmpF;
+            }
 
 
-//            if (reverbBean != null) {
-//                String tmpF = outf.getParent() + "/mux.aac";
-//                MediaMux.mux(recPath, 0, musicPath, 0, tmpF, recVolume, musicVolume);
-//                SoxJni.addReverb(tmpF, outFile,
-//                        (int) (reverbBean.reflectionsLevel * 100),
-//                        50,
-//                        (int) (reverbBean.roomLevel * 100),
-//                        0,
-//                        (int) (reverbBean.decayTime * 100),
-//                        0
-//                );
-//            } else {
+            if (reverbBean != null) {
+                String tmpF = outf.getParent() + "/mux.wav";
+                MediaMux.mux(recPath, 0, musicPath, 0, tmpF, recVolume, musicVolume);
+                SoxJni.addReverb(tmpF, outFile,
+                        (int) (reverbBean.reflectionsLevel * 100),
+                        50,
+                        (int) (reverbBean.roomLevel * 100),
+                        0,
+                        (int) (reverbBean.decayTime * 100),
+                        0
+                );
+            } else {
                 MediaMux.mux(recPath, 0, musicPath, 0, outFile, recVolume, musicVolume);
-//            }
+            }
 
             if (composeCallback != null) {
                 composeCallback.onComposeFinish(true, outFile);
@@ -203,5 +243,9 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
     public interface IComposeCallback {
 
         void onComposeFinish(boolean success, String outPath);
+    }
+
+    public interface IPlayListener {
+        void onPlayProgressChanged(long timeMs);
     }
 }

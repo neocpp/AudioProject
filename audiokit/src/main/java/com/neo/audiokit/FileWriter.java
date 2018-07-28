@@ -76,7 +76,7 @@ public class FileWriter implements IAudioTarget {
 
 //                } else if (mStartEncodeTime != Long.MIN_VALUE) {
 //
-                int nSample = audioFrame.info.size / 2;
+                int nSample = audioFrame.info.size / 2 / mChannelNum;
                 long step = (long) ((nSample * 1000000.0f) / (mSampleRate));
                 audioFrame.info.presentationTimeUs = mAudioEncodeTimestamp;
                 mAudioEncodeTimestamp += step;

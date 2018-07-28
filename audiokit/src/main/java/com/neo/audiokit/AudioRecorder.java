@@ -2,6 +2,7 @@ package com.neo.audiokit;
 
 import android.util.Log;
 
+import com.neo.audiokit.io.WavWriter;
 import com.neo.audiokit.tarsor.TarsorDispatcher;
 
 import be.tarsos.dsp.AudioEvent;
@@ -13,7 +14,7 @@ import be.tarsos.dsp.pitch.PitchProcessor;
 public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
     private static final String TAG = "AudioRecorder";
     private AudioCapture audioCapture;
-    private FileWriter fileWriter;
+    private WavWriter fileWriter;
     private String mRootPath;
     private boolean isRecording = false;
     private ProgressCtrl progressCtrl = new ProgressCtrl();
@@ -22,7 +23,7 @@ public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
     private TarsorDispatcher tarsorDispatcher;
 
     public AudioRecorder(String rootPath, IRecordCallback callback) {
-        fileWriter = new FileWriter();
+        fileWriter = new WavWriter();
         mRootPath = rootPath;
         mCallback = callback;
 
@@ -61,7 +62,8 @@ public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
             return;
         }
         progressCtrl.init(this);
-        outFileName = mRootPath + "/" + System.currentTimeMillis() + ".aac";
+        outFileName = mRootPath + "/" + System.currentTimeMillis() + ".wav";
+        fileWriter.setAudioParma(44100, 1);
         fileWriter.startRecord(outFileName);
         audioCapture.setAudioTarget(tarsorDispatcher);
         isRecording = true;
@@ -80,8 +82,8 @@ public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
             return;
         }
         progressCtrl.unInit();
-        fileWriter.stopRecord();
         audioCapture.setAudioTarget(null);
+        fileWriter.stopRecord();
         isRecording = false;
 
         if (mCallback != null) {

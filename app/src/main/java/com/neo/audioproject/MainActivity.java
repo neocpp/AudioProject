@@ -139,7 +139,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onDuration(long fileDuration) {
+    public void onPrepared(AudioPlayer audioPlayer) {
+
+    }
+
+    @Override
+    public void onPositionChanged(long timeMs) {
 
     }
 

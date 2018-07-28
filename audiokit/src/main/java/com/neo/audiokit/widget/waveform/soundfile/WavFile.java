@@ -9,7 +9,6 @@ import java.io.IOException;
  * Wav file abstraction layer.
  * Source based on http://www.labbookpages.co.uk/audio/javaWavFiles.html
  *
- * @author Anna Stępień <anna.stepien@semantive.com>
  */
 public class WavFile {
     private enum IOState {READING, WRITING, CLOSED}

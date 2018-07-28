@@ -93,6 +93,51 @@ public class AudioFileReader implements IMediaDataCallBack {
         return 0;
     }
 
+    public void startSync() {
+        mAudioDecode = new HWAudioDecode();
+        String audioMime = mAudioTrackFormat.getString(MediaFormat.KEY_MIME);
+        mAudioDecode.setCallBack(this);
+        mAudioDecode.openCodec(audioMime, mAudioTrackFormat, null, false);
+        mAudioDecode.start();
+
+        int dataSize = AUDIO_BUFFER_SIZE;
+        readData = ByteBuffer.allocateDirect(dataSize);
+        info = new CodecBufferInfo();
+        mRunningRead = true;
+    }
+
+    ByteBuffer readData;
+    CodecBufferInfo info;
+
+    public long getReadTime() {
+        return info.presentationTimeUs;
+    }
+
+    public boolean readSync() {
+        if (!mRunningRead) {
+            return false;
+        }
+        int sampleSize = mediaExtractor.readSampleData(readData, 0);
+        Log.d(TAG, "readSample:" + sampleSize);
+        if (sampleSize > 0) {
+            info.flags = 0;
+            info.size = sampleSize;
+            info.presentationTimeUs = mediaExtractor.getSampleTime();
+            Log.d(TAG, "presentationTimeUs:" + info.presentationTimeUs);
+            info.offset = 0;
+
+            mediaExtractor.advance();
+        } else if (sampleSize == 0) {
+            mediaExtractor.advance();
+        } else {
+            info.flags = CodecBufferInfo.BUFFER_FLAG_END_OF_STREAM;
+            mAudioDecode.sendData(readData, info);
+            return false;
+        }
+        mAudioDecode.sendData(readData, info);
+        return true;
+    }
+
     public int seekTo(long pos) {
         mediaExtractor.seekTo(pos, MediaExtractor.SEEK_TO_CLOSEST_SYNC);
         return 0;

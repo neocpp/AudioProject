@@ -34,21 +34,6 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-/**
- * WaveformView is an Android view that displays a visual representation
- * of an audio waveform.  It retrieves the frame gains from a CheapSoundFile
- * object and recomputes the shape contour at several zoom levels.
- * <p/>
- * This class doesn't handle selection or any of the touch interactions
- * directly, so it exposes a listener interface.  The class that embeds
- * this view should add itself as a listener and make the view scroll
- * and respond to other events appropriately.
- * <p/>
- * WaveformView doesn't actually handle selection, but it will just display
- * the selected part of the waveform in a different color.
- * <p>
- * Modified by Anna Stępień <anna.stepien@semantive.com>
- */
 public class WaveformView extends View {
 
     public static final String TAG = "WaveformView";

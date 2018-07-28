@@ -4,6 +4,7 @@ package com.neo.audiokit;
 import com.neo.audiokit.codec.CodecBufferInfo;
 import com.neo.audiokit.codec.IMediaDataCallBack;
 import com.neo.audiokit.codec.MediaFormat;
+import com.neo.audiokit.io.WavWriter;
 import com.qihoo.recorder.codec.NativeMediaLib;
 
 import java.nio.ByteBuffer;
@@ -14,12 +15,12 @@ class MediaDataCallBackImpl implements IMediaDataCallBack {
     private long mHandle = 0;
     private int mSampleRate;
     private int mChannelNum;
-    private QHMp4Writer mMp4Writer;
+//    private QHMp4Writer mMp4Writer;
 
-    MediaDataCallBackImpl(long handle, boolean isSecond, QHMp4Writer mp4Writer) {
+    MediaDataCallBackImpl(long handle, boolean isSecond) {
         mHandle = handle;
         mIsSecond = isSecond;
-        mMp4Writer = mp4Writer;
+//        mMp4Writer = mp4Writer;
     }
 
     public void setSampleRateAndChannelNum(int sampleRate, int channelNum) {
@@ -77,11 +78,11 @@ class MediaDataCallBackImpl implements IMediaDataCallBack {
                     }
                 }
             } else {
-                mMp4Writer.sendData(mediaData, info, isRawData, IMediaDataCallBack.IMediaDataCallBackTrackTypeAudio);
+//                mMp4Writer.sendData(mediaData, info, isRawData, IMediaDataCallBack.IMediaDataCallBackTrackTypeAudio);
             }
 
         } else {
-            mMp4Writer.sendData(mediaData, info, isRawData, trackType);
+//            mMp4Writer.sendData(mediaData, info, isRawData, trackType);
         }
         return 0;
     }
@@ -92,7 +93,7 @@ public class MediaMux {
     public final static String TAG = "MediaMux";
     //编码参数配置
     public final static int ENC_SAMPLE_RATE = 44100;
-    public final static int ENC_CHANNEL_NUM = 1;
+    public final static int ENC_CHANNEL_NUM = 2;
     public final static int ENC_BYTE_PER_SAMPLE = 2;
     public final static int ENC_BLOCK_SIZE = (100 * 1024);
     public final static int ENC_BIT_RATE = 48000;
@@ -178,58 +179,52 @@ public class MediaMux {
                     break;
                 }
             }
-
-
         }
     }
 
-    public static boolean mux(String audioFile, long audioSkipTimeMs, String videoFile, long videoSkipTimeMs, String mergeFilePath, float audioFileAudioWeight, float videoFileAudioWeight) {
+    public static boolean mux(String audioFile, long audioSkipTimeMs, String musicFile, long musicSkipTimeMs, String mergeFilePath, float audioFileAudioWeight, float musicFileAudioWeight) {
 
-        final AudioFileReader videoReader = new AudioFileReader();
+        final AudioFileReader musicReader = new AudioFileReader();
         AudioFileReader audioFileReader = null;
-        QHMp4Writer mp4Writer = new QHMp4Writer();
+//        QHMp4Writer mp4Writer = new QHMp4Writer();
+        WavWriter wavWriter = new WavWriter();
         if (audioFile != null) {
             audioFileReader = new AudioFileReader();
         }
 //        RecorderLogUtils.d(TAG,"mux start" + audioFile + " " + videoFile + " " + audioFileAudioWeight + " " + videoFileAudioWeight + " " + mergeFilePath + " " + audioSkipTimeMs);
         long handle = 0;
         if (audioFileReader != null) {
-            handle = NativeMediaLib.createMixAudio(ENC_SAMPLE_RATE, ENC_BYTE_PER_SAMPLE, ENC_CHANNEL_NUM, audioFileAudioWeight, videoFileAudioWeight);
+            handle = NativeMediaLib.createMixAudio(ENC_SAMPLE_RATE, ENC_BYTE_PER_SAMPLE, ENC_CHANNEL_NUM, audioFileAudioWeight, musicFileAudioWeight);
         } else {
-            handle = NativeMediaLib.createMixAudio(ENC_SAMPLE_RATE, ENC_BYTE_PER_SAMPLE, ENC_CHANNEL_NUM, videoFileAudioWeight, audioFileAudioWeight);
+            handle = NativeMediaLib.createMixAudio(ENC_SAMPLE_RATE, ENC_BYTE_PER_SAMPLE, ENC_CHANNEL_NUM, musicFileAudioWeight, audioFileAudioWeight);
         }
-
 
         boolean needEncodeAudio = true;
-        /**读取视频文件*/
-        MediaDataCallBackImpl videoReaderCallBack = new MediaDataCallBackImpl(handle, audioFile != null ? true : false, mp4Writer);
-        videoReader.openReader(videoFile, Long.MIN_VALUE, Long.MAX_VALUE, videoReaderCallBack);
-        videoReaderCallBack.setSampleRateAndChannelNum(videoReader.getSampleRate(), videoReader.getChannelNum());
-        final boolean videoFileAudioDecFlag = (needEncodeAudio && videoReader.getAudioTrackFormat() != null);
-        long startTime = audioSkipTimeMs > 0 ? (audioSkipTimeMs * 1000) : Long.MIN_VALUE;
-        long endTime = videoReader.getAudioDuration() + (audioSkipTimeMs * 1000);
-
         /**读取音频文件*/
-        if (audioFileReader != null) {
-            MediaDataCallBackImpl audioCallBack = new MediaDataCallBackImpl(handle, false, mp4Writer);
-            audioFileReader.openReader(audioFile, startTime, endTime, audioCallBack);
-            audioCallBack.setSampleRateAndChannelNum(audioFileReader.getSampleRate(), audioFileReader.getChannelNum());
-        }
+        MediaDataCallBackImpl audioCallBack = new MediaDataCallBackImpl(handle, false);
+        audioFileReader.openReader(audioFile, Long.MIN_VALUE, Long.MAX_VALUE, audioCallBack);
+        audioCallBack.setSampleRateAndChannelNum(audioFileReader.getSampleRate(), audioFileReader.getChannelNum());
+        long startTime = audioSkipTimeMs > 0 ? (audioSkipTimeMs * 1000) : Long.MIN_VALUE;
+        long endTime = audioFileReader.getAudioDuration() + (audioSkipTimeMs * 1000);
+
+        /**读取伴奏文件*/
+        MediaDataCallBackImpl musicReaderCallBack = new MediaDataCallBackImpl(handle, audioFile != null ? true : false);
+        musicReader.openReader(musicFile, startTime, endTime, musicReaderCallBack);
+        musicReaderCallBack.setSampleRateAndChannelNum(musicReader.getSampleRate(), musicReader.getChannelNum());
+        final boolean videoFileAudioDecFlag = (needEncodeAudio && musicReader.getAudioTrackFormat() != null);
 
         //写音视频
-        mp4Writer.openWriter(mergeFilePath, false, null, false,
-                needEncodeAudio ? createAudioEncodeFormat() : audioFileReader.getAudioTrackFormat(), needEncodeAudio, null);
-
-        /************************************特效音乐合成到视频某个位置的逻辑start************************************************/
-
+//        mp4Writer.openWriter(mergeFilePath, false, null, false,
+//                needEncodeAudio ? createAudioEncodeFormat() : audioFileReader.getAudioTrackFormat(), needEncodeAudio, null);
         if (audioFileReader != null) {
-            if (videoSkipTimeMs == 0) {
+            if (musicSkipTimeMs == 0) {
                 audioFileReader.start();
             }
         }
-        /************************************特效音乐合成到视频某个位置的逻辑end************************************************/
-        videoReader.start();
-        mp4Writer.start();
+        wavWriter.setAudioParma(ENC_SAMPLE_RATE, ENC_CHANNEL_NUM);
+        wavWriter.startRecord(mergeFilePath);
+        musicReader.start();
+//        mp4Writer.start();
         if (needEncodeAudio) {
             byte[] mixData = new byte[ENC_BLOCK_SIZE];
             long mAudioTS = 0;
@@ -245,20 +240,22 @@ public class MediaMux {
                     Sleep(1);
                 } else {
                     //RecorderLogUtils.d(TAG,"muxNew " + ret);
-                    mAudioTS += processMixAudioData(mixData, ret, mp4Writer, mAudioTS);
+//                    mAudioTS += processMixAudioData(mixData, ret, mp4Writer, mAudioTS);
+                    wavWriter.newDataReady(mixData, 0, ret);
                 }
             }
-            CodecBufferInfo info = new CodecBufferInfo();
-            info.flags = CodecBufferInfo.BUFFER_FLAG_END_OF_STREAM;
-            mp4Writer.sendData(null, info, true, IMediaDataCallBack.IMediaDataCallBackTrackTypeAudio);
+//            CodecBufferInfo info = new CodecBufferInfo();
+//            info.flags = CodecBufferInfo.BUFFER_FLAG_END_OF_STREAM;
+//            mp4Writer.sendData(null, info, true, IMediaDataCallBack.IMediaDataCallBackTrackTypeAudio);
         }
 
         NativeMediaLib.closeMixAudio(handle);
         if (audioFileReader != null) {
             audioFileReader.closeReader();
         }
-        videoReader.closeReader();
-        mp4Writer.closeWriter();
+        musicReader.closeReader();
+        wavWriter.stopRecord();
+//        mp4Writer.closeWriter();
 //        RecorderLogUtils.d(TAG,"muxNew sucess end");
         return true;
     }

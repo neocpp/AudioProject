@@ -248,7 +248,6 @@ public final class C {
   public static final int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
 
   /**
-   * Video scaling modes for {@link MediaCodec}-based {@link Renderer}s.
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
@@ -481,42 +480,12 @@ public final class C {
    */
   public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
 
-  /**
-   * The type of a message that can be passed to a video {@link Renderer} via
-   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be the target {@link Surface}, or null.
-   */
   public static final int MSG_SET_SURFACE = 1;
 
-  /**
-   * A type of a message that can be passed to an audio {@link Renderer} via
-   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be a {@link Float} with 0 being silence and 1 being unity gain.
-   */
   public static final int MSG_SET_VOLUME = 2;
 
-  /**
-   * A type of a message that can be passed to an audio {@link Renderer} via
-   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be one of the integer stream types in {@link C.StreamType}, and will specify the stream
-   * type of the underlying {@link android.media.AudioTrack}. See also
-   * {@link android.media.AudioTrack#AudioTrack(int, int, int, int, int, int)}. If the stream type
-   * is not set, audio renderers use {@link #STREAM_TYPE_DEFAULT}.
-   * <p>
-   * Note that when the stream type changes, the AudioTrack must be reinitialized, which can
-   * introduce a brief gap in audio output. Note also that tracks in the same audio session must
-   * share the same routing, so a new audio session id will be generated.
-   */
   public static final int MSG_SET_STREAM_TYPE = 3;
 
-  /**
-   * The type of a message that can be passed to a {@link MediaCodec}-based video {@link Renderer}
-   * via {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message
-   * object should be one of the integer scaling modes in {@link C.VideoScalingMode}.
-   * <p>
-   * Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
-   * owned by a {@link android.view.SurfaceView}.
-   */
   public static final int MSG_SET_SCALING_MODE = 4;
 
   /**

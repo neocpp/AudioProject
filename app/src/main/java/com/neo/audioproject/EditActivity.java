@@ -15,13 +15,14 @@ import com.neo.audiokit.ReverbBean;
 import com.neo.audiokit.widget.waveform.view.WaveformView;
 
 
-public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, AudioEffectPlayManager.IPlayListener {
     private String wavFile;
     private String outFile;
     private String musicPath;
     private WaveformView waveformView;
     private ReverbBean reverbBean;
     private AudioEffectPlayManager playManager;
+    private SeekBar playSeekbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,7 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         reverbBean = new ReverbBean();
 
         playManager = new AudioEffectPlayManager(wavFile, musicPath);
+        playManager.setIPlayListener(this);
         playManager.setReverb(reverbBean);
 
         findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
@@ -89,6 +91,10 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         seekbar = findViewById(R.id.seekbar_music_volume);
         seekbar.setOnSeekBarChangeListener(this);
 
+        playSeekbar = findViewById(R.id.seekbar);
+        playSeekbar.setOnSeekBarChangeListener(this);
+        playSeekbar.setMax((int) playManager.getDuration());
+
         findViewById(R.id.btn_compose).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,6 +106,11 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
                 });
             }
         });
+    }
+
+    @Override
+    public void onPlayProgressChanged(long timeMs) {
+        playSeekbar.setProgress((int) timeMs);
     }
 
     @Override
@@ -155,6 +166,11 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
             case R.id.seekbar_music_volume:
                 playManager.setMusicVolume(progressf);
                 break;
+            case R.id.seekbar:
+                if (fromUser) {
+                    playManager.seekTo(progress);
+                }
+                break;
         }
     }
 
@@ -170,9 +186,9 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
     private void prepareFile() {
         try {
-            outFile = getExternalFilesDir("ex").getAbsolutePath() + "/out.aac";
-            wavFile = getExternalFilesDir("ex").getAbsolutePath() + "/because_of_you.wav";
-            FileUtils.copyFileFromAssets(this, "because_of_you.wav", wavFile);
+            outFile = getExternalFilesDir("ex").getAbsolutePath() + "/out.wav";
+            wavFile = getExternalFilesDir("record").getAbsolutePath() + "/rec.wav";
+//            FileUtils.copyFileFromAssets(this, "because_of_you.wav", wavFile);
 //            wavFile = getExternalFilesDir("record").getAbsolutePath() + "/rec.aac";
             musicPath = getExternalFilesDir("ex").getAbsolutePath() + "/test.mp3";
             FileUtils.copyFileFromAssets(this, "test.mp3", musicPath);

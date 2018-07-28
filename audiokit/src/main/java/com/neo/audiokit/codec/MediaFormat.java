@@ -109,7 +109,6 @@ public final class MediaFormat {
      * A key describing the max bitrate in bits/sec.
      * This is usually over a one-second sliding window (e.g. over any window of one second).
      * The associated value is an integer
-     * @hide
      */
     public static final String KEY_MAX_BIT_RATE = "max-bitrate";
 
