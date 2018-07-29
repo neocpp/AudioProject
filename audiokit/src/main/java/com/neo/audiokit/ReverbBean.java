@@ -2,6 +2,8 @@ package com.neo.audiokit;
 
 import android.media.audiofx.EnvironmentalReverb;
 
+import com.neo.audiokit.sox.SoxReverbBean;
+
 public class ReverbBean {
     public float roomLevel;
     public float roomHFLevel;
@@ -15,6 +17,7 @@ public class ReverbBean {
     public float density;
 
     private EnvironmentalReverb.Settings settings = new EnvironmentalReverb.Settings();
+    private SoxReverbBean soxReverbBean = new SoxReverbBean();
 
     public EnvironmentalReverb.Settings getReverbSettings() {
         settings.decayHFRatio = (short) (100 + 1900 * decayHFRatio);
@@ -29,5 +32,16 @@ public class ReverbBean {
         settings.roomHFLevel = (short) (-9000 * roomHFLevel);
 
         return settings;
+    }
+
+    public SoxReverbBean getSoxReverbBean() {
+        soxReverbBean.roomScale = (int) (roomHFLevel * 100);
+        soxReverbBean.hFDamping = (int) (roomHFLevel * 100);
+        soxReverbBean.preDelay = (int) (100 * reverbDelay);
+        soxReverbBean.stereoDepth = 0;
+        soxReverbBean.reverberance = (int) (reverbLevel * 100);
+        soxReverbBean.wetGain = 0;
+
+        return soxReverbBean;
     }
 }

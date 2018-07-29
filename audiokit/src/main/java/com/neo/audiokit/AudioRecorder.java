@@ -43,7 +43,7 @@ public class AudioRecorder implements ProgressCtrl.ProgressCtrlCallBack {
             public void handlePitch(PitchDetectionResult pitchDetectionResult,
                                     AudioEvent audioEvent) {
                 float pitchInHz = pitchDetectionResult.getPitch();
-                Log.e(TAG, "pitch:" + pitchInHz);
+//                Log.e(TAG, "pitch:" + pitchInHz);
                 if (mCallback != null) {
                     mCallback.onDetectPitch(pitchInHz);
                 }

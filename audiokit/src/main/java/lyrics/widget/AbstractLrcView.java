@@ -361,7 +361,7 @@ public abstract class AbstractLrcView extends View {
                     long updateTime = (endTime - mPlayerStartTime) - mPlayerSpendTime;
                     mPlayerSpendTime = (endTime - mPlayerStartTime);
                     long delayMs = mRefreshTime - updateTime;
-                    Log.e("AbstractLrcView", "oldDelayMs = " + delayMs + " , newDelayMs = " + Math.max(0, delayMs));
+//                    Log.e("AbstractLrcView", "oldDelayMs = " + delayMs + " , newDelayMs = " + Math.max(0, delayMs));
                     mLrcPlayerHandler.postDelayed(mLrcPlayerRunnable, Math.max(0, delayMs));
                 }
             }

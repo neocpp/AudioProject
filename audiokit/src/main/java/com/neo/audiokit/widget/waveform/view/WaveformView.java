@@ -350,7 +350,7 @@ public class WaveformView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (mSoundFile == null)
+        if (mSoundFile == null || mLenByZoomLevel == null)
             return;
 
         int measuredWidth = getMeasuredWidth();

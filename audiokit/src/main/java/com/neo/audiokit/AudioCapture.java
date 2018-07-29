@@ -222,7 +222,7 @@ public class AudioCapture extends AudioChain {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    Log.d(TAG, TAG + ".AudioRecordThread::run() failed " + liReadSize);
+//                    Log.d(TAG, TAG + ".AudioRecordThread::run() failed " + liReadSize);
                     ;
                 }
             }

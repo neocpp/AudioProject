@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mTxtRec = findViewById(R.id.txt_rec_time);
         findViewById(R.id.btn_play_rec).setOnClickListener(this);
 
-        audioPlayer = new AudioPlayer(null);
+        audioPlayer = new AudioPlayer(this, null);
 
         Spinner sp = findViewById(R.id.spinner);
         sp.setAdapter(new ArrayAdapter<>(this,

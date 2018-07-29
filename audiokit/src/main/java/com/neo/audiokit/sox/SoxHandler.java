@@ -1,9 +1,14 @@
 package com.neo.audiokit.sox;
 
+import android.content.Context;
+
 import com.lib.sox.SoxJni;
 import com.neo.audiokit.framework.AudioChain;
 import com.neo.audiokit.framework.AudioFrame;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -12,6 +17,13 @@ public class SoxHandler extends AudioChain {
     private int mChannels;
     private SoxReverbBean reverbBean;
     private long byteRate;
+    private String inPath;
+    private String outPath;
+
+    public SoxHandler(Context context) {
+        inPath = context.getExternalFilesDir("sox").getAbsolutePath() + "/in.wav";
+        outPath = context.getExternalFilesDir("sox").getAbsolutePath() + "/out.wav";
+    }
 
     public void init(long sampleRate, int channels) {
         mSampleRate = sampleRate;
@@ -90,25 +102,51 @@ public class SoxHandler extends AudioChain {
     @Override
     protected AudioFrame doProcessData(AudioFrame audioFrame) {
         byte[] bytedata = new byte[audioFrame.info.size + 44];
-        setWavHeader(bytedata, audioFrame.info.size + 36, audioFrame.info.size);
+        setWavHeader(bytedata, audioFrame.info.size, audioFrame.info.size + 36);
         audioFrame.buffer.position(audioFrame.info.offset);
         audioFrame.buffer.get(bytedata, 44, audioFrame.info.size);
 
-        byte[] outBuffer = new byte[bytedata.length * 2];
-        int outSize = SoxJni.processBuffer(bytedata, bytedata.length, outBuffer, (int) mSampleRate, mChannels,
+        try {
+            FileOutputStream fos = new FileOutputStream(new File(inPath));
+            fos.write(bytedata, 0, bytedata.length);
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        SoxJni.addReverb(inPath, outPath,
                 reverbBean.reverberance, reverbBean.hFDamping, reverbBean.roomScale, reverbBean.stereoDepth,
                 reverbBean.preDelay, reverbBean.wetGain);
-        if (cacheBuffer == null || cacheBuffer.capacity() < outSize) {
-            cacheBuffer = ByteBuffer.allocateDirect(outSize).order(ByteOrder.nativeOrder());
+
+        try {
+            FileInputStream fis = new FileInputStream(new File(outPath));
+            int outSize = fis.available();
+            byte[] outBuffer = new byte[outSize];
+            fis.read(outBuffer);
+            fis.close();
+            outSize -= 44;
+            outSize /= 2;
+
+            if (cacheBuffer == null || cacheBuffer.capacity() < outSize) {
+                cacheBuffer = ByteBuffer.allocateDirect(outSize).order(ByteOrder.nativeOrder());
+            }
+
+            cacheBuffer.clear();
+            for (int i = 44; i < outBuffer.length; ) {
+                cacheBuffer.put(outBuffer[i++]);
+                cacheBuffer.put(outBuffer[i++]);
+                i++;
+                i++;
+            }
+//            cacheBuffer.put(outBuffer, 44, outSize);
+            cacheBuffer.position(0);
+            cacheBuffer.limit(outSize);
+            audioFrame.buffer = cacheBuffer;
+            audioFrame.info.offset = 0;
+            audioFrame.info.size = outSize;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        cacheBuffer.clear();
-        cacheBuffer.put(outBuffer, 44, outSize - 44);
-        cacheBuffer.position(0);
-        cacheBuffer.limit(outSize);
-        audioFrame.buffer = cacheBuffer;
-        audioFrame.info.offset = 0;
-        audioFrame.info.size = outSize;
 
         return audioFrame;
     }

@@ -1,5 +1,6 @@
 package com.neo.audiokit;
 
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -17,6 +18,7 @@ import com.neo.audiokit.framework.IAudioTarget;
 import com.neo.audiokit.sox.SoxHandler;
 import com.neo.audiokit.tarsor.TarsorDispatcher;
 
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +58,7 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
 
 
     private List<AudioProcessor> audioProcessorList;
+    private WeakReference<Context> mContextRef;
 
     private long mAudioDuration;
 
@@ -72,8 +75,9 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
         return mAudioDuration;
     }
 
-    public AudioPlayer(AudioPlayerCallBack callBack) {
+    public AudioPlayer(Context context, AudioPlayerCallBack callBack) {
         mCallBack = callBack;
+        mContextRef = new WeakReference<Context>(context);
 
         try {
 //            mEqualizer = new Equalizer(0, 0);
@@ -149,6 +153,10 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
         if (mEvnReverb != null) {
             mEvnReverb.setProperties(mReverbBean.getReverbSettings());
         }
+
+//        if (soxHandler != null) {
+//            soxHandler.setParam(mReverbBean.getSoxReverbBean());
+//        }
     }
 
     public int prepare() {
@@ -162,7 +170,9 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
     }
 
     synchronized public int start() {
-        mFirstLocalTime = Long.MIN_VALUE;
+        if (!mIsPause) {
+            mFirstLocalTime = Long.MIN_VALUE;
+        }
         mIsPause = false;
         mIsNeedNotifyCompletionFlag = true;
         if (mAudioTrack != null) {
@@ -321,6 +331,7 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
         }
 //        mAudioTrack.seekTo(pos);
         mAudioReader.seekTo(pos * 1000);
+        mCurrentFileTime = pos * 1000;
         return 0;
     }
 
@@ -359,9 +370,11 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
                     mTarsorProcesser.addAudioProcessor(ap);
                 }
             }
-            soxHandler = new SoxHandler();
+            soxHandler = new SoxHandler(mContextRef.get());
             soxHandler.init(mAudioReader.getSampleRate(), mAudioReader.getChannelNum());
-//            soxHandler.setParam(mReverbBean);
+//            if (mReverbBean != null) {
+//                soxHandler.setParam(mReverbBean.getSoxReverbBean());
+//            }
             setAudioTarget(mSonicHandler);
             mSonicHandler.setAudioTarget(mTarsorProcesser);
             mTarsorProcesser.setAudioTarget(soxHandler);
@@ -374,9 +387,10 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
             int mode = AudioTrack.MODE_STREAM;
             mAudioTrack = new AudioTrack(streamType, mAudioReader.getSampleRate(), channelConfig, audiof, bufferSizeInBytes, mode);
 //            mAudioTrack = new AudioTrack(mAudioReader.getSampleRate(), mAudioReader.getChannelNum());
-            if (mEvnReverb != null) {
-                mAudioTrack.attachAuxEffect(mEvnReverb.getId());
-            }
+//            if (mEvnReverb != null) {
+//                mAudioTrack.attachAuxEffect(mEvnReverb.getId());
+//                mAudioTrack.setAuxEffectSendLevel(1f);
+//            }
 //            mAudioTrack.setSpeed(mPlaySpeed);
             if (mFirstSeektPos > 0) {
 //                mAudioTrack.seekTo(mFirstSeektPos);

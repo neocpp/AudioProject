@@ -1,5 +1,6 @@
 package com.neo.audiokit;
 
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
@@ -30,8 +31,8 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
     private IPlayListener playListener;
     private Handler mHandler;
 
-    public AudioEffectPlayManager(String recPath, String musicPath) {
-        recPlayer = new AudioPlayer(this);
+    public AudioEffectPlayManager(Context context, String recPath, String musicPath) {
+        recPlayer = new AudioPlayer(context, this);
         recPlayer.setDataSource(recPath);
         recPlayer.prepare();
 
@@ -92,6 +93,10 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
         if (musicPlayer != null) {
             musicPlayer.start();
         }
+    }
+
+    public boolean isPlaying() {
+        return recPlayer.isPlaying();
     }
 
     public void pause() {
@@ -185,8 +190,8 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
                 String tmpF = outf.getParent() + "/mux.wav";
                 MediaMux.mux(recPath, 0, musicPath, 0, tmpF, recVolume, musicVolume);
                 SoxJni.addReverb(tmpF, outFile,
-                        (int) (reverbBean.reflectionsLevel * 100),
-                        50,
+                        (int) (reverbBean.reverbLevel * 100),
+                        (int) (reverbBean.roomHFLevel * 100),
                         (int) (reverbBean.roomLevel * 100),
                         0,
                         (int) (reverbBean.decayTime * 100),

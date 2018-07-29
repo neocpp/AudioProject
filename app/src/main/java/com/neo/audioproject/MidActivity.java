@@ -32,7 +32,7 @@ public class MidActivity extends AppCompatActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mid);
         mediaPlayer = new MediaPlayer();
-        audioPlayer = new AudioPlayer(null);
+        audioPlayer = new AudioPlayer(this, null);
 
         findViewById(R.id.process).setOnClickListener(this);
         findViewById(R.id.reverb).setOnClickListener(this);

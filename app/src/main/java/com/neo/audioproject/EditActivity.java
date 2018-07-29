@@ -36,14 +36,18 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
         reverbBean = new ReverbBean();
 
-        playManager = new AudioEffectPlayManager(wavFile, musicPath);
+        playManager = new AudioEffectPlayManager(this, wavFile, musicPath);
         playManager.setIPlayListener(this);
         playManager.setReverb(reverbBean);
 
         findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playManager.start();
+                if(playManager.isPlaying()){
+                    playManager.pause();
+                } else {
+                    playManager.start();
+                }
             }
         });
 
