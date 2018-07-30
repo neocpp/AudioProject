@@ -103,7 +103,6 @@ public class AudioFileReader implements IMediaDataCallBack {
         int dataSize = AUDIO_BUFFER_SIZE;
         readData = ByteBuffer.allocateDirect(dataSize);
         info = new CodecBufferInfo();
-        mRunningRead = true;
     }
 
     ByteBuffer readData;
@@ -114,9 +113,6 @@ public class AudioFileReader implements IMediaDataCallBack {
     }
 
     public boolean readSync() {
-        if (!mRunningRead) {
-            return false;
-        }
         int sampleSize = mediaExtractor.readSampleData(readData, 0);
         Log.d(TAG, "readSample:" + sampleSize);
         if (sampleSize > 0) {
@@ -130,8 +126,8 @@ public class AudioFileReader implements IMediaDataCallBack {
         } else if (sampleSize == 0) {
             mediaExtractor.advance();
         } else {
-            info.flags = CodecBufferInfo.BUFFER_FLAG_END_OF_STREAM;
-            mAudioDecode.sendData(readData, info);
+//            info.flags = CodecBufferInfo.BUFFER_FLAG_END_OF_STREAM;
+//            mAudioDecode.sendData(readData, info);
             return false;
         }
         mAudioDecode.sendData(readData, info);

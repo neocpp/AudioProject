@@ -2,8 +2,6 @@ package com.neo.audiokit;
 
 import android.content.Context;
 import android.media.MediaPlayer;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 
 import com.lib.sox.SoxJni;
@@ -17,10 +15,9 @@ import com.neo.audiokit.io.WavWriter;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.List;
 
-public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.AudioPlayerCallBack, IMediaDataCallBack {
-    private AudioPlayer recPlayer; // 人声
+public class AudioEffectPlayManager extends AudioChain implements AudioPlayerNew.AudioPlayerCallback, IMediaDataCallBack {
+    private AudioPlayerNew recPlayer; // 人声
     private MediaPlayer musicPlayer; // 伴奏
     private float recVolume = 1f;
     private float musicVolume = 1f;
@@ -29,14 +26,12 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
     private String musicPath;
     private ReverbBean reverbBean;
     private IPlayListener playListener;
-    private Handler mHandler;
 
     public AudioEffectPlayManager(Context context, String recPath, String musicPath) {
-        recPlayer = new AudioPlayer(context, this);
+        recPlayer = new AudioPlayerNew(context);
+        recPlayer.setPlayCallback(this);
         recPlayer.setDataSource(recPath);
-        recPlayer.prepare();
-
-        mHandler = new Handler(Looper.getMainLooper());
+        recPlayer.prepareAsyn();
 
         if (!TextUtils.isEmpty(musicPath)) {
             musicPlayer = new MediaPlayer();
@@ -60,22 +55,14 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
         return recPlayer.getDuration();
     }
 
-    public List<String> getPresetValues() {
-        return recPlayer.getPresetValues();
-    }
-
     public void setReverb(ReverbBean bean) {
         reverbBean = bean;
-        recPlayer.setReverb(bean);
-    }
-
-    public void setPreset(int idx) {
-        recPlayer.setPreset(idx);
+        recPlayer.setReverb(bean.getSoxReverbBean());
     }
 
     public void setPitch(float pitch) {
-        this.pitch = pitch;
-        recPlayer.setPitch(.5f + pitch);
+        this.pitch = pitch + .5f;
+        recPlayer.setPitch(this.pitch);
     }
 
     public void setRecVolume(float volume) {
@@ -124,6 +111,7 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
 
     @Override
     public void onCompletion() {
+        recPlayer.seekTo(0);
         recPlayer.start();
         if (musicPlayer != null) {
             musicPlayer.seekTo(0);
@@ -132,23 +120,20 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
     }
 
     @Override
-    public void onPrepared(AudioPlayer audioPlayer) {
+    public void onPrepared() {
 
     }
 
     @Override
     public void onPositionChanged(final long timeMs) {
-        if (playListener == null) {
-            return;
+        if (playListener != null) {
+            playListener.onPlayProgressChanged(timeMs);
         }
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (playListener != null) {
-                    playListener.onPlayProgressChanged(timeMs);
-                }
-            }
-        });
+    }
+
+    @Override
+    public void onError(int code, String msg) {
+
     }
 
     private Thread composeThread;
@@ -194,7 +179,7 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayer.Au
                         (int) (reverbBean.roomHFLevel * 100),
                         (int) (reverbBean.roomLevel * 100),
                         0,
-                        (int) (reverbBean.decayTime * 100),
+                        (int) (reverbBean.reverbDelay * 100),
                         0
                 );
             } else {

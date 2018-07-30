@@ -5,10 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 
 import com.neo.audiokit.AudioEffectPlayManager;
 import com.neo.audiokit.ReverbBean;
@@ -43,7 +40,7 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(playManager.isPlaying()){
+                if (playManager.isPlaying()) {
                     playManager.pause();
                 } else {
                     playManager.start();
@@ -51,38 +48,9 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
             }
         });
 
-        Spinner sp = findViewById(R.id.spinner);
-        sp.setAdapter(new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, playManager.getPresetValues()));
-        // 为Spinner的列表项选中事件设置监听器
-        sp.setOnItemSelectedListener(new Spinner
-                .OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> arg0
-                    , View arg1, int arg2, long arg3) {
-                playManager.setPreset(arg2);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0) {
-            }
-        });
-
-        SeekBar seekbar = findViewById(R.id.seekbar_decay);
-        seekbar.setOnSeekBarChangeListener(this);
-        seekbar = findViewById(R.id.seekbar_decayhf);
-        seekbar.setOnSeekBarChangeListener(this);
-        seekbar = findViewById(R.id.seekbar_room_level);
+        SeekBar seekbar = findViewById(R.id.seekbar_room_level);
         seekbar.setOnSeekBarChangeListener(this);
         seekbar = findViewById(R.id.seekbar_roomhf_level);
-        seekbar.setOnSeekBarChangeListener(this);
-        seekbar = findViewById(R.id.seekbar_density);
-        seekbar.setOnSeekBarChangeListener(this);
-        seekbar = findViewById(R.id.seekbar_diffusion);
-        seekbar.setOnSeekBarChangeListener(this);
-        seekbar = findViewById(R.id.seekbar_reflect_decay);
-        seekbar.setOnSeekBarChangeListener(this);
-        seekbar = findViewById(R.id.seekbar_reflect_level);
         seekbar.setOnSeekBarChangeListener(this);
         seekbar = findViewById(R.id.seekbar_reverb_decay);
         seekbar.setOnSeekBarChangeListener(this);
@@ -102,6 +70,7 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         findViewById(R.id.btn_compose).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                playManager.pause();
                 playManager.composeFile(outFile, new AudioEffectPlayManager.IComposeCallback() {
                     @Override
                     public void onComposeFinish(boolean success, String outPath) {
@@ -121,36 +90,12 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         float progressf = progress / 100f;
         switch (seekBar.getId()) {
-            case R.id.seekbar_decay:
-                reverbBean.reverbDelay = progressf;
-                playManager.setReverb(reverbBean);
-                break;
-            case R.id.seekbar_decayhf:
-                reverbBean.decayHFRatio = progressf;
-                playManager.setReverb(reverbBean);
-                break;
             case R.id.seekbar_room_level:
                 reverbBean.roomLevel = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_roomhf_level:
                 reverbBean.roomHFLevel = progressf;
-                playManager.setReverb(reverbBean);
-                break;
-            case R.id.seekbar_density:
-                reverbBean.density = progressf;
-                playManager.setReverb(reverbBean);
-                break;
-            case R.id.seekbar_diffusion:
-                reverbBean.diffusion = progressf;
-                playManager.setReverb(reverbBean);
-                break;
-            case R.id.seekbar_reflect_decay:
-                reverbBean.reflectionsDelay = progressf;
-                playManager.setReverb(reverbBean);
-                break;
-            case R.id.seekbar_reflect_level:
-                reverbBean.reflectionsLevel = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_reverb_level:

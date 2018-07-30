@@ -26,6 +26,7 @@ import java.util.List;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 
+@Deprecated
 public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
     private final static String TAG = "AudioSpeedPlayer";
     private String mPath;

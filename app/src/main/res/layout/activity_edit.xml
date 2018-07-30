@@ -44,16 +44,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="预设效果" />
-
-        <Spinner
-            android:id="@+id/spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="room level" />
 
         <SeekBar
@@ -69,72 +59,6 @@
 
         <SeekBar
             android:id="@+id/seekbar_roomhf_level"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="100" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="decay" />
-
-        <SeekBar
-            android:id="@+id/seekbar_decay"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="100" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="decayhf" />
-
-        <SeekBar
-            android:id="@+id/seekbar_decayhf"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="100" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="density" />
-
-        <SeekBar
-            android:id="@+id/seekbar_density"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="100" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="diffusion" />
-
-        <SeekBar
-            android:id="@+id/seekbar_diffusion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="100" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="reflect_level" />
-
-        <SeekBar
-            android:id="@+id/seekbar_reflect_level"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="100" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="reflect_decay" />
-
-        <SeekBar
-            android:id="@+id/seekbar_reflect_decay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="100" />

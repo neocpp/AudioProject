@@ -119,6 +119,10 @@ public class AudioPlayerNew extends AudioChain implements IMediaDataCallBack, Ha
         return mAudioDurationMs;
     }
 
+    public long getCurrentPlayTime() {
+        return mCurrentPlayTime;
+    }
+
     @Override
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
@@ -132,7 +136,9 @@ public class AudioPlayerNew extends AudioChain implements IMediaDataCallBack, Ha
                 handleRead();
                 break;
             case MSG_SEEK:
+                mExecuteHandler.removeMessages(MSG_READ);
                 long timeMs = (Long) msg.obj;
+                mAudioTrack.flush();
                 mAudioReader.seekTo(timeMs * 1000);
                 mCurrentPlayTime = timeMs;
                 break;
@@ -167,9 +173,25 @@ public class AudioPlayerNew extends AudioChain implements IMediaDataCallBack, Ha
 
     private void handleRead() {
         if (mStatus == STATUS.STARTED) {
-            mAudioReader.readSync();
+            boolean hasData = mAudioReader.readSync();
             mCurrentPlayTime = mAudioReader.getReadTime() / 1000;
+
+            if (!hasData) {
+                notifyCompletion();
+                mStatus = STATUS.PREPARED;
+            }
         }
+    }
+
+    private void notifyCompletion() {
+        mMainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (mPlayCallback != null) {
+                    mPlayCallback.onCompletion();
+                }
+            }
+        });
     }
 
     private void handleStart() {
@@ -230,7 +252,9 @@ public class AudioPlayerNew extends AudioChain implements IMediaDataCallBack, Ha
                 notifyPositionChanged();
             }
 
-            mExecuteHandler.sendMessage(mExecuteHandler.obtainMessage(MSG_READ));
+            if (mStatus != STATUS.STOPED) {
+                mExecuteHandler.sendMessage(mExecuteHandler.obtainMessage(MSG_READ));
+            }
         }
     };
 
@@ -311,5 +335,10 @@ public class AudioPlayerNew extends AudioChain implements IMediaDataCallBack, Ha
         void onError(int code, String msg);
     }
 
+    public void setVolume(float gain) {
+        if (mAudioTrack != null) {
+            mAudioTrack.setStereoVolume(gain, gain);
+        }
+    }
 
 }
