@@ -65,7 +65,6 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
         playSeekbar = findViewById(R.id.seekbar);
         playSeekbar.setOnSeekBarChangeListener(this);
-        playSeekbar.setMax((int) playManager.getDuration());
 
         findViewById(R.id.btn_compose).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +83,11 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     @Override
     public void onPlayProgressChanged(long timeMs) {
         playSeekbar.setProgress((int) timeMs);
+    }
+
+    @Override
+    public void onPrepared() {
+        playSeekbar.setMax((int) playManager.getDuration());
     }
 
     @Override

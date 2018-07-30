@@ -121,7 +121,9 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayerNew
 
     @Override
     public void onPrepared() {
-
+        if (playListener != null) {
+            playListener.onPrepared();
+        }
     }
 
     @Override
@@ -236,6 +238,8 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayerNew
     }
 
     public interface IPlayListener {
+        void onPrepared();
+
         void onPlayProgressChanged(long timeMs);
     }
 }
