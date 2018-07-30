@@ -150,13 +150,13 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
 //            soxHandler.setParam(bean);
 //        }
 
-        if (mEvnReverb != null) {
-            mEvnReverb.setProperties(mReverbBean.getReverbSettings());
-        }
-
-//        if (soxHandler != null) {
-//            soxHandler.setParam(mReverbBean.getSoxReverbBean());
+//        if (mEvnReverb != null) {
+//            mEvnReverb.setProperties(mReverbBean.getReverbSettings());
 //        }
+
+        if (soxHandler != null) {
+            soxHandler.setParam(mReverbBean.getSoxReverbBean());
+        }
     }
 
     public int prepare() {
@@ -372,9 +372,9 @@ public class AudioPlayer extends AudioChain implements IMediaDataCallBack {
             }
             soxHandler = new SoxHandler(mContextRef.get());
             soxHandler.init(mAudioReader.getSampleRate(), mAudioReader.getChannelNum());
-//            if (mReverbBean != null) {
-//                soxHandler.setParam(mReverbBean.getSoxReverbBean());
-//            }
+            if (mReverbBean != null) {
+                soxHandler.setParam(mReverbBean.getSoxReverbBean());
+            }
             setAudioTarget(mSonicHandler);
             mSonicHandler.setAudioTarget(mTarsorProcesser);
             mTarsorProcesser.setAudioTarget(soxHandler);

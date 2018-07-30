@@ -8,7 +8,7 @@ public class SoxReverbBean {
     public int preDelay;
     public int wetGain;
 
-    public boolean isUnset() {
+    public boolean isSet() {
         return (reverberance | hFDamping | roomScale | stereoDepth | preDelay | wetGain) != 0;
     }
 }

@@ -1,6 +1,7 @@
 package com.neo.audiokit.sox;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.lib.sox.SoxJni;
 import com.neo.audiokit.framework.AudioChain;
@@ -90,7 +91,7 @@ public class SoxHandler extends AudioChain {
 
     @Override
     protected boolean isActive() {
-        return reverbBean == null ? false : reverbBean.isUnset();
+        return reverbBean == null ? false : reverbBean.isSet();
     }
 
     public void setParam(SoxReverbBean bean) {
@@ -98,16 +99,30 @@ public class SoxHandler extends AudioChain {
     }
 
     private ByteBuffer cacheBuffer;
+    byte[] lastBytedata;
+    byte[] headerData = new byte[44];
 
     @Override
     protected AudioFrame doProcessData(AudioFrame audioFrame) {
-        byte[] bytedata = new byte[audioFrame.info.size + 44];
-        setWavHeader(bytedata, audioFrame.info.size, audioFrame.info.size + 36);
+        if (lastBytedata == null) {
+            lastBytedata = new byte[audioFrame.info.size];
+            audioFrame.buffer.position(audioFrame.info.offset);
+            audioFrame.buffer.get(lastBytedata, 0, audioFrame.info.size);
+
+            audioFrame.buffer.position(audioFrame.info.offset);
+            return audioFrame;
+        }
+
+        byte[] bytedata = new byte[audioFrame.info.size];
         audioFrame.buffer.position(audioFrame.info.offset);
-        audioFrame.buffer.get(bytedata, 44, audioFrame.info.size);
+        audioFrame.buffer.get(bytedata, 0, audioFrame.info.size);
+        setWavHeader(headerData, audioFrame.info.size + lastBytedata.length,
+                audioFrame.info.size + lastBytedata.length + 36);
 
         try {
             FileOutputStream fos = new FileOutputStream(new File(inPath));
+            fos.write(headerData);
+            fos.write(lastBytedata);
             fos.write(bytedata, 0, bytedata.length);
             fos.close();
         } catch (Exception e) {
@@ -124,25 +139,33 @@ public class SoxHandler extends AudioChain {
             fis.read(outBuffer);
             fis.close();
             outSize -= 44;
-            outSize /= 2;
+            if (mChannels == 1) {
+                outSize /= 2;
+            }
+            outSize = outSize - lastBytedata.length;
 
             if (cacheBuffer == null || cacheBuffer.capacity() < outSize) {
                 cacheBuffer = ByteBuffer.allocateDirect(outSize).order(ByteOrder.nativeOrder());
             }
 
             cacheBuffer.clear();
-            for (int i = 44; i < outBuffer.length; ) {
+            int index = 0;
+            for (int i = 44 + lastBytedata.length; i < outBuffer.length && cacheBuffer.remaining() > 0; ) {
                 cacheBuffer.put(outBuffer[i++]);
+                index++;
                 cacheBuffer.put(outBuffer[i++]);
-                i++;
-                i++;
+                index++;
+
+                i += 2;
             }
 //            cacheBuffer.put(outBuffer, 44, outSize);
             cacheBuffer.position(0);
-            cacheBuffer.limit(outSize);
+            cacheBuffer.limit(index);
             audioFrame.buffer = cacheBuffer;
             audioFrame.info.offset = 0;
-            audioFrame.info.size = outSize;
+            audioFrame.info.size = index;
+
+            lastBytedata = bytedata;
         } catch (Exception e) {
             e.printStackTrace();
         }

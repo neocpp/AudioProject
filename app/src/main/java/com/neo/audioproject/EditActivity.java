@@ -122,43 +122,43 @@ public class EditActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         float progressf = progress / 100f;
         switch (seekBar.getId()) {
             case R.id.seekbar_decay:
-                reverbBean.reverbDelay = progress;
+                reverbBean.reverbDelay = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_decayhf:
-                reverbBean.decayHFRatio = progress;
+                reverbBean.decayHFRatio = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_room_level:
-                reverbBean.roomLevel = progress;
+                reverbBean.roomLevel = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_roomhf_level:
-                reverbBean.roomHFLevel = progress;
+                reverbBean.roomHFLevel = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_density:
-                reverbBean.density = progress;
+                reverbBean.density = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_diffusion:
-                reverbBean.diffusion = progress;
+                reverbBean.diffusion = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_reflect_decay:
-                reverbBean.reflectionsDelay = progress;
+                reverbBean.reflectionsDelay = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_reflect_level:
-                reverbBean.reflectionsLevel = progress;
+                reverbBean.reflectionsLevel = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_reverb_level:
-                reverbBean.reverbLevel = progress;
+                reverbBean.reverbLevel = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_reverb_decay:
-                reverbBean.reverbDelay = progress;
+                reverbBean.reverbDelay = progressf;
                 playManager.setReverb(reverbBean);
                 break;
             case R.id.seekbar_pitch:

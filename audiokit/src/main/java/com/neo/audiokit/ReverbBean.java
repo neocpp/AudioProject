@@ -35,7 +35,7 @@ public class ReverbBean {
     }
 
     public SoxReverbBean getSoxReverbBean() {
-        soxReverbBean.roomScale = (int) (roomHFLevel * 100);
+        soxReverbBean.roomScale = (int) (roomLevel * 100);
         soxReverbBean.hFDamping = (int) (roomHFLevel * 100);
         soxReverbBean.preDelay = (int) (100 * reverbDelay);
         soxReverbBean.stereoDepth = 0;
