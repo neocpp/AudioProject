@@ -44,7 +44,7 @@ public class MidiView extends View {
     private int inTargetCount;
     private int totalCount;
 
-    private final static int MOD_VALUE = 7;
+    private final static int MOD_VALUE = 12;
 
     public MidiView(Context context) {
         super(context);
