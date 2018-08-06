@@ -14,7 +14,7 @@ public class FFAudioDecode implements ICodec {
     private long mAudioDecoderHandle;
     private IMediaDataCallBack mCallBack;
     @Override
-    public int openCodec(String mimeType, MediaFormat format, Surface surface, boolean isEncode) {
+    public int openCodec(String mimeType, android.media.MediaFormat format, Surface surface, boolean isEncode) {
         int codeId = 0;
         int sampleRate = 0;
         int channelNum = 0;
@@ -36,7 +36,7 @@ public class FFAudioDecode implements ICodec {
         }
         NativeMediaLib.audioDecoderOpenDecode(mAudioDecoderHandle,sampleRate,channelNum,codeId,extData,extDataSize);
         if(mCallBack != null){
-            mCallBack.onMediaFormatChange(format,IMediaDataCallBack.IMediaDataCallBackTrackTypeAudio);
+//            mCallBack.onMediaFormatChange(format,IMediaDataCallBack.IMediaDataCallBackTrackTypeAudio);
         }
         return 0;
     }

@@ -11,7 +11,7 @@ public class FFAudioEncode implements ICodec {
     private long mEncodeHandle;
     private IMediaDataCallBack mCallBack;
     @Override
-    public int openCodec(String mimeType, MediaFormat format, Surface surface, boolean isEncode) {
+    public int openCodec(String mimeType, android.media.MediaFormat format, Surface surface, boolean isEncode) {
         int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
         int channelNum = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
         int bitsrate = format.getInteger(MediaFormat.KEY_BIT_RATE);

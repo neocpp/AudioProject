@@ -299,7 +299,8 @@ public class ManyLyricsView extends AbstractLrcView {
         float lyricsWordHLTime = getLyricsWordHLTime();
         float translateLyricsWordHLTime = getTranslateLyricsWordHLTime();
 
-
+        paint.setTextSize(mFontSize);
+        paintHL.setTextSize(mFontSize);
         //获取中间位置
         mCentreY = (getHeight() + LyricsUtils.getTextHeight(paintHL)) * 0.5f + getLineAtHeightY(lyricsLineNum) - mOffsetY;
 
@@ -310,8 +311,13 @@ public class ManyLyricsView extends AbstractLrcView {
                 .get(lyricsLineNum);
         List<LyricsLineInfo> splitLyricsLineInfos = lyricsLineInfo.getSplitLyricsLineInfos();
         float lineBottomY = drawDownLyrics(canvas, paint, paintHL, splitLyricsLineInfos, splitLyricsLineNum, splitLyricsWordIndex, spaceLineHeight, lyricsWordHLTime, mCentreY);
+
+        paint.setTextSize(mFontSize * 0.8f);
+        paintHL.setTextSize(mFontSize * .8f);
+        extraLrcPaint.setTextSize(mFontSize * .8f);
+
         //画额外歌词
-        lineBottomY = drawDownExtraLyrics(canvas, extraLrcPaint, extraLrcPaintHL, lyricsLineNum, extraSplitLyricsLineNum, extraSplitLyricsWordIndex, extraLrcSpaceLineHeight, lyricsWordHLTime, translateLyricsWordHLTime, lineBottomY);
+//        lineBottomY = drawDownExtraLyrics(canvas, extraLrcPaint, extraLrcPaintHL, lyricsLineNum, extraSplitLyricsLineNum, extraSplitLyricsWordIndex, extraLrcSpaceLineHeight, lyricsWordHLTime, translateLyricsWordHLTime, lineBottomY);
 
 
         //画当前行正面的歌词
@@ -322,7 +328,7 @@ public class ManyLyricsView extends AbstractLrcView {
             List<LyricsLineInfo> lyricsLineInfos = downLyricsLineInfo.getSplitLyricsLineInfos();
             lineBottomY = drawDownLyrics(canvas, paint, paintHL, lyricsLineInfos, -1, -2, spaceLineHeight, -1, lineBottomY);
             //画额外歌词
-            lineBottomY = drawDownExtraLyrics(canvas, extraLrcPaint, extraLrcPaintHL, i, -1, -2, extraLrcSpaceLineHeight, -1, -1, lineBottomY);
+//            lineBottomY = drawDownExtraLyrics(canvas, extraLrcPaint, extraLrcPaintHL, i, -1, -2, extraLrcSpaceLineHeight, -1, -1, lineBottomY);
         }
 
 
@@ -337,9 +343,9 @@ public class ManyLyricsView extends AbstractLrcView {
         }
 
         //绘画时间、播放按钮等
-        if (mTouchIntercept || mTouchEventStatus != TOUCHEVENTSTATUS_INIT) {
-            drawIndicator(canvas);
-        }
+//        if (mTouchIntercept || mTouchEventStatus != TOUCHEVENTSTATUS_INIT) {
+//            drawIndicator(canvas);
+//        }
 
     }
 

@@ -24,7 +24,7 @@ public class FFVideoEncode implements ICodec {
     }
 
     @Override
-    public int openCodec(String mimeType, MediaFormat format, Surface surface, boolean isEncode) {
+    public int openCodec(String mimeType, android.media.MediaFormat format, Surface surface, boolean isEncode) {
         int width = format.getInteger(MediaFormat.KEY_WIDTH);
         int height = format.getInteger(MediaFormat.KEY_HEIGHT);
         int bitrate = format.getInteger(MediaFormat.KEY_BIT_RATE);

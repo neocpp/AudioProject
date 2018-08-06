@@ -4,6 +4,7 @@ import android.media.MediaExtractor;
 import android.util.Log;
 
 import com.neo.audiokit.codec.CodecBufferInfo;
+import com.neo.audiokit.codec.FFAudioDecode;
 import com.neo.audiokit.codec.HWAudioDecode;
 import com.neo.audiokit.codec.ICodec;
 import com.neo.audiokit.codec.IMediaDataCallBack;
@@ -20,7 +21,7 @@ public class AudioFileReader implements IMediaDataCallBack {
     private long mStartTime = Long.MIN_VALUE;
     private long mFirstAudioFrameTime = Long.MIN_VALUE;
     private long mEndTime;
-    private MediaFormat mAudioTrackFormat = null;
+    private android.media.MediaFormat mAudioTrackFormat = null;
     private ICodec mAudioDecode;
     private IMediaDataCallBack mMediaDataCallBack;
     private ReadThead mReadThread;
@@ -55,7 +56,7 @@ public class AudioFileReader implements IMediaDataCallBack {
             mChannleNum = mediaFormat.getInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT);
             mAudioDuration = mediaFormat.getLong(android.media.MediaFormat.KEY_DURATION);
             String mime = mediaFormat.getString(android.media.MediaFormat.KEY_MIME);
-            mAudioTrackFormat = MediaFormat.createAudioFormat(mime, mSampleRate, mChannleNum);
+            mAudioTrackFormat = mediaFormat;//MediaFormat.createAudioFormat(mime, mSampleRate, mChannleNum);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -199,7 +200,7 @@ public class AudioFileReader implements IMediaDataCallBack {
     /**
      * @return
      */
-    public MediaFormat getAudioTrackFormat() {
+    public android.media.MediaFormat getAudioTrackFormat() {
         return mAudioTrackFormat;
     }
 

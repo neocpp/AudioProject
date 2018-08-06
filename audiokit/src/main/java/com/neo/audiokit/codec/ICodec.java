@@ -6,7 +6,7 @@ import android.view.Surface;
 import java.nio.ByteBuffer;
 
 public interface ICodec {
-    int openCodec(String mimeType, MediaFormat format, Surface surface, boolean isEncode);
+    int openCodec(String mimeType, android.media.MediaFormat format, Surface surface, boolean isEncode);
 
     int start();
 

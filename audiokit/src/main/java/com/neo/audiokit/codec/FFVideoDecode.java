@@ -15,7 +15,7 @@ public class FFVideoDecode implements ICodec {
     private long mVideoDecodeHandle;
     private IMediaDataCallBack mCallBack;
     @Override
-    public int openCodec(String mimeType, MediaFormat format, Surface surface, boolean isEncode) {
+    public int openCodec(String mimeType, android.media.MediaFormat format, Surface surface, boolean isEncode) {
         if(mVideoDecodeHandle == 0){
             int width = format.getInteger(MediaFormat.KEY_WIDTH);
             int height = format.getInteger(MediaFormat.KEY_HEIGHT);

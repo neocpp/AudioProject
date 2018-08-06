@@ -38,7 +38,7 @@ public class BaseCodec implements ICodec {
         MediaCodec.BufferInfo frameInfo;
     }
     @Override
-    public int openCodec(String mimeType, MediaFormat format, Surface surface, boolean isEncode) {
+    public int openCodec(String mimeType, android.media.MediaFormat format, Surface surface, boolean isEncode) {
         int codeFlag;
         mSurface = surface;
         mIsEncode = isEncode;
@@ -59,7 +59,7 @@ public class BaseCodec implements ICodec {
             Log.e(TAG,"BaseCodec::openCodec create codec faled" + mIsEncode);
             return -1;
         }
-        android.media.MediaFormat mediaFormat = QHMediaFormatToMediaFormat(format);
+        android.media.MediaFormat mediaFormat = format;//QHMediaFormatToMediaFormat(format);
         try {
             mMediaCodec.configure(mediaFormat,mSurface,null,codeFlag);
         } catch (Exception e) {

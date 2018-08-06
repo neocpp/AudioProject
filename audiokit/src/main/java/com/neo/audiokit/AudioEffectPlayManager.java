@@ -72,7 +72,9 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayerNew
 
     public void setMusicVolume(float volume) {
         musicVolume = volume;
-        musicPlayer.setVolume(volume, volume);
+        if (musicPlayer != null) {
+            musicPlayer.setVolume(volume, volume);
+        }
     }
 
     public void start() {

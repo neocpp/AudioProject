@@ -136,7 +136,7 @@ public class QHMp4Reader implements IMediaDataCallBack {
                 mVideoTrackFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, CodecBufferInfo.COLOR_FormatYUV420Flexible);
             }
             mVideoDecode.setCallBack(this);
-            mVideoDecode.openCodec(MediaFormat.MIMETYPE_VIDEO_AVC, mVideoTrackFormat, surface, false);
+//            mVideoDecode.openCodec(MediaFormat.MIMETYPE_VIDEO_AVC, mVideoTrackFormat, surface, false);
             mVideoDecode.start();
         }
 
@@ -145,7 +145,7 @@ public class QHMp4Reader implements IMediaDataCallBack {
             mAudioDecode = new HWAudioDecode();
             String audioMime = mAudioTrackFormat.getString(MediaFormat.KEY_MIME);
             mAudioDecode.setCallBack(this);
-            mAudioDecode.openCodec(audioMime, mAudioTrackFormat, null, false);
+//            mAudioDecode.openCodec(audioMime, mAudioTrackFormat, null, false);
             mAudioDecode.start();
         }
 

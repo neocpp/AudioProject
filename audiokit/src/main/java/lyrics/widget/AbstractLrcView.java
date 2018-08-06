@@ -215,7 +215,7 @@ public abstract class AbstractLrcView extends View {
     /**
      * 歌词字体大小
      */
-    private float mFontSize = 30;
+    protected float mFontSize = 30;
 
     /**
      * 左右间隔距离

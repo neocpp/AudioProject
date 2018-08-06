@@ -69,14 +69,14 @@ public class QHMp4Writer implements IMediaDataCallBack {
                 mVideoEncoder = new HWVideoEncode();
             }
             mVideoEncoder.setCallBack(this);
-            mVideoEncoder.openCodec(MediaFormat.MIMETYPE_VIDEO_AVC, videoFormat, null, true);
+//            mVideoEncoder.openCodec(MediaFormat.MIMETYPE_VIDEO_AVC, videoFormat, null, true);
         } else {
             mVideoCodecParamFormat = videoFormat;
         }
         if (audioFormat != null && bAudioIsRaw) {
             mAudioEncoder = new HWAudioEncode();
             mAudioEncoder.setCallBack(this);
-            mAudioEncoder.openCodec(MediaFormat.MIMETYPE_AUDIO_AAC, audioFormat, null, true);
+//            mAudioEncoder.openCodec(MediaFormat.MIMETYPE_AUDIO_AAC, audioFormat, null, true);
         } else {
             mAudioCodecParamFormat = audioFormat;
         }
