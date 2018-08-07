@@ -5,10 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
-
-import lyrics.model.LyricsInfo;
-import lyrics.model.LyricsLineInfo;
-import lyrics.model.TranslateLrcLineInfo;
+import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,6 +13,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 import java.util.TreeMap;
+
+import lyrics.model.LyricsInfo;
+import lyrics.model.LyricsLineInfo;
+import lyrics.model.TranslateLrcLineInfo;
 
 /**
  * 歌词处理类
@@ -386,7 +387,10 @@ public class LyricsUtils {
         float curLrcTextWidth = LyricsUtils.getTextWidth(paint, curLyrics);
         if (lyricsType == LyricsInfo.LRC || lyricsWordIndex == -2) {
             // 整行歌词
-            lineLyricsHLWidth = curLrcTextWidth;
+//            lineLyricsHLWidth = curLrcTextWidth;
+            lineLyricsHLWidth = curLrcTextWidth *
+                    (lyricsWordHLTime - lyricsLineInfo.getStartTime()) / (lyricsLineInfo.getEndTime() - lyricsLineInfo.getStartTime());
+
         } else {
             if (lyricsWordIndex != -1) {
                 String lyricsWords[] = lyricsLineInfo.getLyricsWords();
@@ -415,7 +419,6 @@ public class LyricsUtils {
 
         return lineLyricsHLWidth;
     }
-
 
     /**
      * 绘画动感文本
@@ -889,14 +892,19 @@ public class LyricsUtils {
     public static TreeMap<Integer, LyricsLineInfo> getSplitLrcLyrics(TreeMap<Integer, LyricsLineInfo> defLyricsLineTreeMap, float textMaxWidth, Paint paint) {
         if (defLyricsLineTreeMap == null) return null;
         TreeMap<Integer, LyricsLineInfo> lyricsLineTreeMap = new TreeMap<Integer, LyricsLineInfo>();
+        LyricsLineInfo lastInfo = null;
         for (int i = 0; i < defLyricsLineTreeMap.size(); i++) {
             LyricsLineInfo lyricsLineInfo = new LyricsLineInfo();
             //复制
             lyricsLineInfo.copy(lyricsLineInfo, defLyricsLineTreeMap.get(i));
+            if (lastInfo != null) {
+                lastInfo.setEndTime(lyricsLineInfo.getStartTime());
+            }
             //分割歌词
             splitLrcLyrics(lyricsLineInfo, paint, textMaxWidth);
 
             lyricsLineTreeMap.put(i, lyricsLineInfo);
+            lastInfo = lyricsLineInfo;
         }
         return lyricsLineTreeMap;
     }

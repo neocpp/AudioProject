@@ -174,7 +174,6 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayerNew
                 recPath = tmpF;
             }
 
-
             if (reverbBean != null) {
                 String tmpF = outf.getParent() + "/mux.wav";
                 MediaMux.mux(recPath, 0, musicPath, 0, tmpF, recVolume, musicVolume);
@@ -190,8 +189,20 @@ public class AudioEffectPlayManager extends AudioChain implements AudioPlayerNew
                 MediaMux.mux(recPath, 0, musicPath, 0, outFile, recVolume, musicVolume);
             }
 
+            String oFile = outf.getParent() + "/" + System.currentTimeMillis() + ".aac";
+            AudioFileReader audioFileReader = new AudioFileReader();
+            audioFileReader.openReader(outFile, Long.MIN_VALUE, Long.MAX_VALUE, AudioEffectPlayManager.this);
+            FileWriter fileWriter = new FileWriter();
+            fileWriter.setAudioParma(audioFileReader.getSampleRate(), audioFileReader.getChannelNum(), 48000);
+            fileWriter.startRecord(oFile);
+            setAudioTarget(fileWriter);
+            audioFileReader.start();
+            audioFileReader.closeReader();
+            fileWriter.stopRecord();
+
+            composeThread = null;
             if (composeCallback != null) {
-                composeCallback.onComposeFinish(true, outFile);
+                composeCallback.onComposeFinish(true, oFile);
             }
         }
     };

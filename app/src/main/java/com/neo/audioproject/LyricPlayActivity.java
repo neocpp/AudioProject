@@ -22,7 +22,8 @@ public class LyricPlayActivity extends AppCompatActivity implements AudioLyricVi
         lyricsView = findViewById(R.id.lyric_view);
         lyricsView.setPaintColor(new int[]{Color.WHITE, Color.WHITE});
         lyricsView.setPaintHLColor(new int[]{Color.RED, Color.RED});
-
+        lyricsView.setFontSize(50);
+        lyricsView.setSpaceLineHeight(80);
         lyricsView.setCallback(this);
         lyricsView.setLooping(true);
 
@@ -50,8 +51,8 @@ public class LyricPlayActivity extends AppCompatActivity implements AudioLyricVi
             musicPath = getExternalFilesDir("ex").getAbsolutePath() + "/test.mp3";
             FileUtils.copyFileFromAssets(this, "test.mp3", musicPath);
 
-            lyricPath = getExternalFilesDir("ex").getAbsolutePath() + "/aiqingyu_krc.krc";
-            FileUtils.copyFileFromAssets(this, "aiqingyu_krc.krc", lyricPath);
+            lyricPath = getExternalFilesDir("ex").getAbsolutePath() + "/test.lrc";
+            FileUtils.copyFileFromAssets(this, "test.lrc", lyricPath);
         } catch (Exception e) {
             e.printStackTrace();
         }

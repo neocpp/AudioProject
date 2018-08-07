@@ -160,6 +160,10 @@ public class Sequence {
 		return track;
 	}
 
+	public Vector<Track> getInnerTracks(){
+    	return tracks;
+	}
+
     /**
      * Get list of {@link Patch}es used in this Sequence.
      *

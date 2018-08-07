@@ -32,7 +32,8 @@ public class QHMp4Writer implements IMediaDataCallBack {
     private MediaFormat mVideoCodecParamFormat;
     private MediaFormat mAudioCodecParamFormat;
 
-    public int openWriter(String fileName, boolean isSoftVideoEncode, MediaFormat videoFormat, boolean bVideoIsRaw, MediaFormat audioFormat, boolean bAudioIsRaw, IMediaDataCallBack callBack) {
+    public int openWriter(String fileName, boolean isSoftVideoEncode, MediaFormat videoFormat, boolean bVideoIsRaw,
+                          android.media.MediaFormat audioFormat, boolean bAudioIsRaw, IMediaDataCallBack callBack) {
 
         mNeedWriteAudioTrack = (audioFormat != null);
         mNeedWriteVideoTrack = (videoFormat != null);
@@ -76,9 +77,9 @@ public class QHMp4Writer implements IMediaDataCallBack {
         if (audioFormat != null && bAudioIsRaw) {
             mAudioEncoder = new HWAudioEncode();
             mAudioEncoder.setCallBack(this);
-//            mAudioEncoder.openCodec(MediaFormat.MIMETYPE_AUDIO_AAC, audioFormat, null, true);
+            mAudioEncoder.openCodec(MediaFormat.MIMETYPE_AUDIO_AAC, audioFormat, null, true);
         } else {
-            mAudioCodecParamFormat = audioFormat;
+//            mAudioCodecParamFormat = audioFormat;
         }
         mMediaDataCallBack = callBack;
         mIsOpened = true;

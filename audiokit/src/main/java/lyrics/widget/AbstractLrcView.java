@@ -447,6 +447,8 @@ public abstract class AbstractLrcView extends View {
         mGotoSearchRectPaint.setStrokeWidth(2);
         mGotoSearchRectPaint.setTextSize(mFontSize);
 
+        mTextMaxWidth = getContext().getResources().getDisplayMetrics().widthPixels / 3 * 2;
+
     }
 
     @Override
@@ -1140,6 +1142,7 @@ public abstract class AbstractLrcView extends View {
         } else {
             //lrc歌词
             //获取分割后的索引
+            mLyricsWordHLTime = playProgress;
             mSplitLyricsLineNum = LyricsUtils.getSplitLrcLyricsLineNum(mLrcLineInfos, mLyricsLineNum, playProgress, mLyricsReader.getPlayOffset());
         }
         if (mLyricsReader.getLyricsType() == LyricsInfo.DYNAMIC && mExtraLrcStatus == EXTRALRCSTATUS_SHOWTRANSLATELRC && mTranslateDrawType == TRANSLATE_DRAW_TYPE_DYNAMIC) {

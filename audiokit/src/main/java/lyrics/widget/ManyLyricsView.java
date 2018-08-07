@@ -264,6 +264,9 @@ public class ManyLyricsView extends AbstractLrcView {
         mShadeHeight = getHeight() / 4;
         //设置歌词的最大宽度
         int textMaxWidth = getWidth() / 3 * 2;
+        if (textMaxWidth == 0) {
+            textMaxWidth = getContext().getResources().getDisplayMetrics().widthPixels / 3 * 2;
+        }
         setTextMaxWidth(textMaxWidth);
     }
 
@@ -312,9 +315,9 @@ public class ManyLyricsView extends AbstractLrcView {
         List<LyricsLineInfo> splitLyricsLineInfos = lyricsLineInfo.getSplitLyricsLineInfos();
         float lineBottomY = drawDownLyrics(canvas, paint, paintHL, splitLyricsLineInfos, splitLyricsLineNum, splitLyricsWordIndex, spaceLineHeight, lyricsWordHLTime, mCentreY);
 
-        paint.setTextSize(mFontSize * 0.8f);
-        paintHL.setTextSize(mFontSize * .8f);
-        extraLrcPaint.setTextSize(mFontSize * .8f);
+        paint.setTextSize(mFontSize * 0.7f);
+        paintHL.setTextSize(mFontSize * .7f);
+        extraLrcPaint.setTextSize(mFontSize * .7f);
 
         //画额外歌词
 //        lineBottomY = drawDownExtraLyrics(canvas, extraLrcPaint, extraLrcPaintHL, lyricsLineNum, extraSplitLyricsLineNum, extraSplitLyricsWordIndex, extraLrcSpaceLineHeight, lyricsWordHLTime, translateLyricsWordHLTime, lineBottomY);
@@ -416,7 +419,8 @@ public class ManyLyricsView extends AbstractLrcView {
 
             } else if (i == curLyricsLineNum) {
                 //绘画动感歌词
-                float lineLyricsHLWidth = LyricsUtils.getLineLyricsHLWidth(lyricsReader.getLyricsType(), paint, splitLyricsLineInfos.get(i), splitLyricsWordIndex, lyricsWordHLTime);
+                float lineLyricsHLWidth = LyricsUtils.getLineLyricsHLWidth(lyricsReader.getLyricsType(), paint,
+                        splitLyricsLineInfos.get(i), splitLyricsWordIndex, lyricsWordHLTime);
                 LyricsUtils.drawDynamicText(canvas, paint, paintHL, paintColors, paintHLColors, text, lineLyricsHLWidth, textX, lineBottomY);
 
             } else if (i > curLyricsLineNum) {
@@ -675,7 +679,7 @@ public class ManyLyricsView extends AbstractLrcView {
         }
         TreeMap<Integer, LyricsLineInfo> lrcLineInfos = getLrcLineInfos();
         int lyricsLineNum = getLyricsLineNum();
-        if(lrcLineInfos == null){
+        if (lrcLineInfos == null) {
             return;
         }
 

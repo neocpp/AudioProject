@@ -27,11 +27,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import jp.kshoji.javax.sound.midi.InvalidMidiDataException;
 import jp.kshoji.javax.sound.midi.MidiEvent;
 import jp.kshoji.javax.sound.midi.MidiSystem;
 import jp.kshoji.javax.sound.midi.Sequence;
+import jp.kshoji.javax.sound.midi.Track;
 
 public class MidiParser {
     private Sequence seq;
@@ -42,6 +44,12 @@ public class MidiParser {
 
     public MidiParser(File midiFile) throws InvalidMidiDataException, IOException {
         seq = MidiSystem.getSequence(midiFile);
+        Vector<Track> tracks = seq.getInnerTracks();
+        if (tracks.size() >= 2) {
+            Track t = tracks.get(1);
+            tracks.clear();
+            tracks.add(t);
+        }
     }
 
     public List<MidiNoteInfo> generateNoteInfo() {

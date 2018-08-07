@@ -16,7 +16,7 @@ public class FileWriter implements IAudioTarget {
     private QHMp4Writer mMp4Writer;
     private boolean mIsSoftVideoEncode = false;
     private boolean mPreferSoftEncode = false;
-    private MediaFormat audioFormat;
+    private android.media.MediaFormat audioFormat;
     /**
      * 编码渲染
      */
@@ -111,8 +111,8 @@ public class FileWriter implements IAudioTarget {
         return mAudioEncodeTimestamp / 1000;
     }
 
-    private MediaFormat createAudioEncodeFormat() {
-        MediaFormat encodeFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, mSampleRate, mChannelNum);
+    private android.media.MediaFormat createAudioEncodeFormat() {
+        android.media.MediaFormat encodeFormat = android.media.MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, mSampleRate, mChannelNum);
         encodeFormat.setInteger(MediaFormat.KEY_BIT_RATE, mAudioBitsrate);//比特率
         encodeFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, CodecBufferInfo.AACObjectLC);
         encodeFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, AUDIO_ENC_BLOCK_SIZE);
